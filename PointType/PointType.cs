@@ -111,8 +111,13 @@ namespace PointType
             //第二页面验证码图片
             RandomPic = 10,
             //第二页面截取验证码位数
-            RandomSubHowMuch = 11
-
+            RandomSubHowMuch = 11,
+            //第二页面验证码位数
+            AutoNumberSubString = 12,
+            //第一页面自定义加价输入框
+            AddMoneyTextBox = 16,
+            //第一页面自定义加价按钮
+            AddMoneyButton = 17
 
 
         }
