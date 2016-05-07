@@ -24,6 +24,7 @@ using System.Timers;
 using ConsoleApplication1;
 using System.Security.Cryptography;
 using PointType;
+using System.Net.NetworkInformation;
 namespace paipai
 {
 
@@ -36,11 +37,25 @@ namespace paipai
         List<string> stringlist;
         private const string ApiKey = "32d16eda539883457e61ufwlsORme81I3XQMAGl0e7iK5vpD6Q2ZHkvaAXmKvmDIUdvGm7RHAvOg";
         public delegate void PriceAfter();
+        public delegate void ChangeFlag();
+        public event ChangeFlag flaghandler;
         public event PriceAfter handler;
         MyOcrKing.MyOrc myorc;
         Dictionary<char, Keys> keylist;
-        static bool flag48 = false;
+        bool flag48 = true;
         static string resultstring = "";
+        int lastsecond = 0;
+        int addmoney = 0;
+        int pullsecond = 0;
+        DataTable dtcarplan;
+        DataTable personinfodt;
+        int monihour = 0;
+        int monimin = 0;
+        int monisec = 0;
+        bool canconfirm = false;
+        Dictionary<char, Keys> numlist;
+        bool firstflag = false;
+        int keycount = 0;
         public Form1()
         {
             myorc = new MyOcrKing.MyOrc(ApiKey);
@@ -48,7 +63,7 @@ namespace paipai
             this.Location = new Point(1000, 0);
             InitializeComponent();
 
-            handler += PriceInsert;
+            //handler += PriceInsert;
             handler += PriceConfirm;
             handler += SumbitConfirm;
 
@@ -61,6 +76,17 @@ namespace paipai
             tr.SetApartmentState(ApartmentState.STA);
             tr.IsBackground = true;
             tr.Start();
+            numlist = new Dictionary<char, Keys>();
+            numlist.Add('0', Keys.D0);
+            numlist.Add('1', Keys.D1);
+            numlist.Add('2', Keys.D2);
+            numlist.Add('3', Keys.D3);
+            numlist.Add('4', Keys.D4);
+            numlist.Add('5', Keys.D5);
+            numlist.Add('6', Keys.D6);
+            numlist.Add('7', Keys.D7);
+            numlist.Add('8', Keys.D8);
+            numlist.Add('9', Keys.D9);
             stringlist = new List<string>();
             keylist = new Dictionary<char, Keys>();
             keylist.Add('0', Keys.D0);
@@ -73,7 +99,83 @@ namespace paipai
             keylist.Add('7', Keys.D7);
             keylist.Add('8', Keys.D8);
             keylist.Add('9', Keys.D9);
+            keylist.Add('x', Keys.X);
+            keylist.Add('X', Keys.X);
+            keylist.Add('a', Keys.A);
+            keylist.Add('b', Keys.B);
+            keylist.Add('c', Keys.C);
+            keylist.Add('d', Keys.D);
+            keylist.Add('e', Keys.E);
+            keylist.Add('f', Keys.F);
+            keylist.Add('g', Keys.G);
+            keylist.Add('h', Keys.H);
+            keylist.Add('i', Keys.I);
+            keylist.Add('j', Keys.J);
+            keylist.Add('k', Keys.K);
+            keylist.Add('l', Keys.L);
+            keylist.Add('m', Keys.M);
+            keylist.Add('n', Keys.N);
+            keylist.Add('o', Keys.O);
+            keylist.Add('p', Keys.P);
+            keylist.Add('q', Keys.Q);
+            keylist.Add('r', Keys.R);
+            keylist.Add('s', Keys.S);
+            keylist.Add('t', Keys.T);
+            keylist.Add('u', Keys.U);
+            keylist.Add('v', Keys.V);
+            keylist.Add('w', Keys.W);
+            keylist.Add('y', Keys.Y);
+            keylist.Add('z', Keys.Z);
+            keylist.Add('A', Keys.A);
+            keylist.Add('B', Keys.B);
+            keylist.Add('C', Keys.C);
+            keylist.Add('D', Keys.D);
+            keylist.Add('E', Keys.E);
+            keylist.Add('F', Keys.F);
+            keylist.Add('G', Keys.G);
+            keylist.Add('H', Keys.H);
+            keylist.Add('I', Keys.I);
+            keylist.Add('J', Keys.J);
+            keylist.Add('K', Keys.K);
+            keylist.Add('L', Keys.L);
+            keylist.Add('M', Keys.M);
+            keylist.Add('N', Keys.N);
+            keylist.Add('O', Keys.O);
+            keylist.Add('P', Keys.P);
+            keylist.Add('Q', Keys.Q);
+            keylist.Add('R', Keys.R);
+            keylist.Add('S', Keys.S);
+            keylist.Add('T', Keys.T);
+            keylist.Add('U', Keys.U);
+            keylist.Add('V', Keys.V);
+            keylist.Add('W', Keys.W);
+            keylist.Add('Y', Keys.Y);
+            keylist.Add('Z', Keys.Z);
+            for (int i = 1; i < 24; i++)
+            {
+                moni_hour.Items.Add(i);
 
+            }
+            moni_hour.SelectedItem = DateTime.Now.Hour;
+            for (int i = 0; i < 60; i++)
+            {
+                moni_min.Items.Add(i);
+
+            }
+            moni_min.SelectedItem = DateTime.Now.Minute;
+
+
+
+            string sql = "select * from CarPlan";
+            dtcarplan = DBHelper.GetTable(sql);
+            comboBox1.DisplayMember = "planname";
+            comboBox1.ValueMember = "id";
+            comboBox1.DataSource = dtcarplan;
+
+            InitPersonInfo();
+
+
+            string[] macurl = GetMacString();//获取mac地址;
 
 
             System.Timers.Timer timer = new System.Timers.Timer();
@@ -82,27 +184,97 @@ namespace paipai
             timer.Interval = 100;//执行间隔时间,单位为毫秒
             timer.Elapsed += new ElapsedEventHandler(TimeCheck);
             timer.Start();
+            flaghandler += ChangeLable;
+            flaghandler += KeyCountShow;
+            tabControl1.TabPages.RemoveAt(1);
 
 
+
+
+
+            //Wrapper.uu_setSoftInfo(108048, "fdaeff5504864589bea7a929334fb69f");
+            //Wrapper.uu_login("nylyy0325", "19850325nyl");
 
         }
 
 
-        public static void TimeCheck(object source, ElapsedEventArgs e)
+        public void ChangeLable()
+        {
+            label4.Text = flag48 ? "开启" : "关闭";
+
+        }
+
+        public void KeyCountShow()
         {
 
-            if (DateTime.Now.Second % 20 == 0 && flag48)
+            keycount_label.Text = keycount.ToString();
+        }
+
+        public void TimeCheck(object source, ElapsedEventArgs e)
+        {
+
+            //if (DateTime.Now.Second % 20 == 0 && flag48)
+            //{
+
+            //    flag48 = false;
+            //    keybd_event((byte)Keys.F3, 0, 0, 0);
+            //    keybd_event((byte)Keys.F3, 0, 0x2, 0);
+
+
+            //}
+            // label4.Text = flag48 ? "开启" : "关闭";
+            this.BeginInvoke(flaghandler);
+
+            if (flag48)
             {
-                
-                flag48 = false;
-                keybd_event((byte)Keys.F3, 0, 0, 0);
-                keybd_event((byte)Keys.F3, 0, 0x2, 0);
+
+                if (DateTime.Now.Hour == 11 && DateTime.Now.Minute == 29 && DateTime.Now.Second == lastsecond)
+                {
+
+                    flag48 = false;
+                    FirstPullPrice();
+                    //keybd_event((byte)Keys.F3, 0, 0, 0);
+                    //keybd_event((byte)Keys.F3, 0, 0x2, 0);
+
+                }
+
+                if (DateTime.Now.Hour == monihour && DateTime.Now.Minute == monimin && DateTime.Now.Second == lastsecond && checkBox1.Checked)
+                {
+                    flag48 = false;
+                    FirstPullPrice();
+                    //keybd_event((byte)Keys.F3, 0, 0, 0);
+                    //keybd_event((byte)Keys.F3, 0, 0x2, 0);
+                }
 
 
             }
 
+
+
         }
 
+
+
+
+        public static string[] GetMacString()
+        {
+            string strMac = "";
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface ni in interfaces)
+            {
+                if (ni.OperationalStatus == OperationalStatus.Up)
+                {
+                    strMac += ni.GetPhysicalAddress().ToString() + "|";
+                }
+            }
+            return strMac.Split('|');
+
+        }
+
+        public static NetworkInterface[] NetCardInfo()
+        {
+            return NetworkInterface.GetAllNetworkInterfaces();
+        }
 
         public void CheckVersion()
         {
@@ -203,10 +375,33 @@ namespace paipai
         {
 
 
-            if (e.KeyData == Keys.F3)
+            if (firstflag)
             {
 
 
+                if (e.KeyData == Keys.Back && keycount > 0)
+                {
+                    keycount--;
+
+                }
+
+
+                if (numlist.ContainsValue(e.KeyData) && keycount < 4)
+                {
+                    keycount++;
+                }
+
+            }
+            else
+            {
+                keycount = 0;
+
+            }
+
+            if (e.KeyData == Keys.F3)
+            {
+
+                flag48 = false;
                 FirstPullPrice();
                 //InitPrice();
             }
@@ -216,35 +411,32 @@ namespace paipai
                 flag48 = !flag48;
 
             }
+            else if (e.KeyData == Keys.F2)
+            {
+                SecondPullPrice();
+
+            }
 
 
 
             else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Enter)
             {
+                //string url = System.Windows.Forms.Application.StartupPath + @"\CheckPrice.exe";//@"D:\拍牌价格监测\CheckPrice\CheckPrice\bin\x86\Debug\CheckPrice.exe";//System.Windows.Forms.Application.StartupPath.Replace(@"paipai\paipai", @"paipai\\CheckPrice") + @"\CheckPrice.exe";
 
-                //Thread tr = new Thread(new ThreadStart(ShowMessage));
-                //tr.SetApartmentState(ApartmentState.STA);
-                //tr.Start();
-
-                //ShowMessage(myprice);
+                //Process.Start(url, myprice.ToString() + " " + pullsecond);
 
 
-                //MessageBox.Show(System.Windows.Forms.Application.StartupPath);
-                //return;
-                string url = System.Windows.Forms.Application.StartupPath + @"\CheckPrice.exe";//@"D:\拍牌价格监测\CheckPrice\CheckPrice\bin\x86\Debug\CheckPrice.exe";//System.Windows.Forms.Application.StartupPath.Replace(@"paipai\paipai", @"paipai\\CheckPrice") + @"\CheckPrice.exe";
+                System.Timers.Timer t = new System.Timers.Timer();
+                t.Elapsed += new ElapsedEventHandler(EveryTimeRun);
+                t.Interval = 400;
+                t.Enabled = true;
+                t.Start();
 
 
-                //Process.Start("D:\\拍牌插件\\paipai\\ConsoleApplication1\\bin\\Debug\\ConsoleApplication1.exe", myprice.ToString());
-                Process.Start(url, myprice.ToString());
-
-                //Thread.Sleep(300);
-
-                //int[] randomtextboxpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.RandomTextBox);
-                //SetCursorPos(randomtextboxpoint[0], randomtextboxpoint[1]);
-                ////SetCursorPos(730, 410);
-                //mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
-
-
+                //System.Threading.Thread tnumber = new System.Threading.Thread(new System.Threading.ThreadStart(AutoNumber));
+                //tnumber.IsBackground = true;
+                //tnumber.Start();
+                canconfirm = true;
 
             }
 
@@ -253,6 +445,74 @@ namespace paipai
 
 
         public void FirstPullPrice()
+        {
+
+
+            #region 自定义加价输入框选中
+            int[] addmoneytextboxpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.AddMoneyTextBox);
+            //移至文本输入框，鼠标点击
+            SetCursorPos(addmoneytextboxpoint[0], addmoneytextboxpoint[1]);
+            mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+            keybd_event((byte)Keys.LControlKey, 0, 0, 0);
+            keybd_event((byte)Keys.A, 0, 0, 0);
+            keybd_event((byte)Keys.A, 0, 0x2, 0);
+            keybd_event((byte)Keys.LControlKey, 0, 0x2, 0);
+            keybd_event((byte)Keys.Delete, 0, 0, 0);
+
+            foreach (char onekey in addmoney.ToString())
+            {
+                keybd_event((byte)keylist[onekey], 0, 0, 0);
+                keybd_event((byte)keylist[onekey], 0, 0x2, 0);
+            }
+
+
+            Thread.Sleep(400);
+
+            #endregion
+
+            #region 自定义加价按钮点击
+            int[] addmoneybuttonpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.AddMoneyButton);
+            SetCursorPos(addmoneybuttonpoint[0], addmoneybuttonpoint[1]);
+            mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+            firstflag = true;
+            Thread.Sleep(200);
+            #endregion
+
+
+
+            #region 移至价格输入框,并鼠标点击一下
+            //int[] firstpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FirstPricePoint);
+            //SetCursorPos(firstpoint[0], firstpoint[1]);
+            //mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+            #endregion
+
+            #region 截屏并产生数字
+
+            //string url = "d:\\" + Guid.NewGuid() + ".jpg";
+            //int[] lowprice = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.LowestPricePoint);
+            //Bitmap lowpic = captureScreen(lowprice[0], lowprice[1], lowprice[2], lowprice[3], 3);
+            //lowpic.Save(url, ImageFormat.Jpeg);
+            //string lowpricestring = Marshal.PtrToStringAnsi(OCRpart(url, -1, 0, 0, lowprice[2] * 3, lowprice[3] * 3));
+            //lowpricestring = ReplaceStringToInt(lowpricestring);
+
+            //int thisprice = int.Parse(lowpricestring);
+
+            //thisprice += addmoney;
+            //myprice = thisprice;
+            #endregion
+
+            handler();
+
+
+            //delegate1();
+
+            //delegate2();
+
+
+        }
+
+        public void SecondPullPrice()
         {
             int[] firstpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FirstPricePoint);
             #region 移至价格输入框,并鼠标点击一下
@@ -274,7 +534,7 @@ namespace paipai
             int thisprice = int.Parse(lowpricestring); //int.Parse(Marshal.PtrToStringAnsi(OCRpart(url, -1, 0, 0, lowprice[2], lowprice[3])).Replace("T", "7").Replace("l", "1")); //myorc.GetNumber(lowprice[0], lowprice[1], lowprice[2], lowprice[3], url);//myorc.GetNumber(680, 280, 57, 20, url);
 
 
-            thisprice += PointType.PointType.GetPointValue(PointType.PointType.Coordinate.AddMoney)[0];//600;
+            thisprice += 300;//PointType.PointType.GetPointValue(PointType.PointType.Coordinate.AddMoney)[0];//600;
             myprice = thisprice;
             #endregion
             handler();
@@ -284,13 +544,12 @@ namespace paipai
 
             //delegate2();
 
-
         }
 
 
         public string ReplaceStringToInt(string vaule)
         {
-            return vaule.Replace("T", "7").Replace(@"\r\n", "").Replace("l", "1").Replace("O", "0").Replace("o", "0").Replace("$", "4").Replace("s", "3").Replace("S", "3").Replace("t", "4").Replace(" ", "4");
+            return vaule.Replace("I", "1").Replace("T", "7").Replace(@"\r\n", "").Replace("l", "1").Replace("O", "0").Replace("o", "0").Replace("$", "4").Replace("s", "3").Replace("S", "3").Replace("t", "4").Replace(" ", "4");
 
 
 
@@ -344,7 +603,7 @@ namespace paipai
                 keybd_event((byte)keylist[onekey], 0, 0, 0);
                 keybd_event((byte)keylist[onekey], 0, 0x2, 0);
             }
-            Thread.Sleep(200);
+            Thread.Sleep(600);
 
             #endregion
 
@@ -360,7 +619,7 @@ namespace paipai
             #region 移动至出价并点击
             int[] pullprice = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FirstPullPricePoint);
             SetCursorPos(pullprice[0], pullprice[1]);
-            //SetCursorPos(850, 430);
+
             mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
             #endregion
         }
@@ -441,6 +700,13 @@ namespace paipai
             Form2 f2 = new Form2();
             f2.Location = new Point(0, 0);
             f2.ShowDialog();
+
+        }
+        public void showtest()
+        {
+            Form3 f3 = new Form3();
+            f3.Location = new Point(0, 0);
+            f3.ShowDialog();
 
         }
 
@@ -529,6 +795,449 @@ namespace paipai
         private void button2_Click(object sender, EventArgs e)
         {
             //this.Height = 1000;
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            DataTable dtcopy = dtcarplan.Copy();
+            dtcopy.DefaultView.RowFilter = "id = " + comboBox1.SelectedValue;
+            lastsecond = Convert.ToInt32(dtcopy.DefaultView[0]["lastsecond"]);
+            addmoney = Convert.ToInt32(dtcopy.DefaultView[0]["addmoney"]);
+            pullsecond = Convert.ToInt32(dtcopy.DefaultView[0]["pullsecond"]);
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            string sqlbookid = "update [PointVaule] set PointX='" + bookidx.Text + "',PointY='" + bookidy.Text + "' where typeid=13";
+            string sqlbookpassword = "update [PointVaule] set PointX='" + bookpasswordx.Text + "',PointY='" + bookpasswordy.Text + "' where typeid=14";
+            string sqlpersonid = "update [PointVaule] set PointX='" + personidx.Text + "',PointY='" + personidy.Text + "' where typeid=15";
+
+
+
+            bool bookidflag = DBHelper.ExcuteSQL(sqlbookid) > 0;
+            bool bookpasswordflag = DBHelper.ExcuteSQL(sqlbookpassword) > 0;
+            bool personidflag = DBHelper.ExcuteSQL(sqlpersonid) > 0;
+
+            if (bookidflag && bookpasswordflag && personidflag)
+            {
+                MessageBox.Show("更新成功");
+
+            }
+            else
+            {
+                MessageBox.Show("更新失败");
+            }
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            if (comboBox_selectitem.SelectedIndex == -1)
+            {
+                MessageBox.Show("请选择查询项");
+                return;
+            }
+            string selectcolval = "";
+            if (comboBox_selectitem.SelectedIndex == 0)
+                selectcolval = "bookid";
+            else
+                selectcolval = "bookpassword";
+
+            //DataTable personinfocopy = personinfodt.Copy();
+
+            if (textBox_selectvalue.Text != "")
+            {
+                personinfodt = DBHelper.GetTable("select * from personinfo where " + selectcolval + "=" + textBox_selectvalue.Text);
+            }
+            else
+            {
+                personinfodt = DBHelper.GetTable("select * from personinfo");
+
+            }
+
+
+
+            dataGridView1.DataSource = personinfodt.DefaultView;
+
+
+
+        }
+        public void InitPersonInfo()
+        {
+            personinfodt = DBHelper.GetTable("select * from personinfo");
+            dataGridView1.DataSource = personinfodt;
+
+        }
+
+        private void btn_first_Click(object sender, EventArgs e)
+        {
+            int a = -1;
+            try
+            {
+                a = dataGridView1.CurrentRow.Index;
+            }
+            catch
+            {
+                MessageBox.Show("数据无选中");
+                return;
+            }
+
+            Login(true, a);
+
+
+
+
+        }
+
+        public void Login(bool isfirst, int a)
+        {
+            string bookid = dataGridView1.Rows[a].Cells["bookid"].Value.ToString();
+            string bookpassword = dataGridView1.Rows[a].Cells["bookpassword"].Value.ToString();
+            string personid = dataGridView1.Rows[a].Cells["personid"].Value.ToString();
+            DataTable dtpoint = DBHelper.GetTable("select PointX,PointY,typeid from [PointVaule] where typeid in(13,14,15)");
+            dtpoint.DefaultView.RowFilter = "typeid = 13";
+            int bookidpointx = int.Parse(dtpoint.DefaultView[0][0].ToString());
+            int bookidpointy = int.Parse(dtpoint.DefaultView[0][1].ToString());
+            dtpoint.DefaultView.RowFilter = "typeid = 14";
+            int bookpasswordx = int.Parse(dtpoint.DefaultView[0][0].ToString());
+            int bookpasswordy = int.Parse(dtpoint.DefaultView[0][1].ToString());
+            dtpoint.DefaultView.RowFilter = "typeid = 15";
+            int personidx = int.Parse(dtpoint.DefaultView[0][0].ToString());
+            int personidy = int.Parse(dtpoint.DefaultView[0][1].ToString());
+
+
+            SetCursorPos(bookidpointx, bookidpointy);
+            mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+            keybd_event((byte)Keys.LControlKey, 0, 0, 0);
+            keybd_event((byte)Keys.A, 0, 0, 0);
+            keybd_event((byte)Keys.A, 0, 0x2, 0);
+            keybd_event((byte)Keys.LControlKey, 0, 0x2, 0);
+            keybd_event((byte)Keys.Delete, 0, 0, 0);
+            foreach (char onekey in bookid.ToString())
+            {
+                keybd_event((byte)keylist[onekey], 0, 0, 0);
+                keybd_event((byte)keylist[onekey], 0, 0x2, 0);
+            }
+
+            SetCursorPos(bookpasswordx, bookpasswordy);
+            mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+            keybd_event((byte)Keys.LControlKey, 0, 0, 0);
+            keybd_event((byte)Keys.A, 0, 0, 0);
+            keybd_event((byte)Keys.A, 0, 0x2, 0);
+            keybd_event((byte)Keys.LControlKey, 0, 0x2, 0);
+            keybd_event((byte)Keys.Delete, 0, 0, 0);
+            foreach (char onekey in bookpassword.ToString())
+            {
+                keybd_event((byte)keylist[onekey], 0, 0, 0);
+                keybd_event((byte)keylist[onekey], 0, 0x2, 0);
+            }
+
+            if (!isfirst)
+            {
+                SetCursorPos(personidx, personidy);
+                mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                keybd_event((byte)Keys.LControlKey, 0, 0, 0);
+                keybd_event((byte)Keys.A, 0, 0, 0);
+                keybd_event((byte)Keys.A, 0, 0x2, 0);
+                keybd_event((byte)Keys.LControlKey, 0, 0x2, 0);
+                keybd_event((byte)Keys.Delete, 0, 0, 0);
+                foreach (char onekey in personid.ToString())
+                {
+                    keybd_event((byte)keylist[onekey], 0, 0, 0);
+                    keybd_event((byte)keylist[onekey], 0, 0x2, 0);
+                }
+
+
+            }
+
+
+        }
+
+        private void btn_second_Click(object sender, EventArgs e)
+        {
+            int a = -1;
+            try
+            {
+                a = dataGridView1.CurrentRow.Index;
+            }
+            catch
+            {
+                MessageBox.Show("数据无选中");
+                return;
+            }
+
+            Login(false, a);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Thread tr = new Thread(new ThreadStart(showtest));
+            tr.SetApartmentState(ApartmentState.STA);
+            tr.IsBackground = true;
+            tr.Start();
+        }
+
+        private void moni_hour_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            monihour = Convert.ToInt32(moni_hour.SelectedItem);
+
+        }
+
+        private void moni_min_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            monimin = Convert.ToInt32(moni_min.SelectedItem);
+        }
+
+        public string CheckResult(string result)
+        {
+            //对验证码结果进行校验，防止dll被替换
+            if (string.IsNullOrEmpty(result))
+                return result;
+            else
+            {
+                if (result[0] == '-')
+                    //服务器返回的是错误代码
+                    return result;
+
+                string[] modelReult = result.Split('_');
+                //解析出服务器返回的校验结果
+                string strServerKey = modelReult[0];
+                string strCodeResult = modelReult[1];
+
+
+                //相等则校验通过
+
+                return strCodeResult;
+
+            }
+        }
+        public void AutoNumber()
+        {
+
+            try
+            {
+
+                int[] randompic = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.RandomPic);
+
+                Bitmap bmp = captureScreen(randompic[0], randompic[1], randompic[2], randompic[3], 2); //captureScreen(780, 400, 120, 30, false);
+                string firsturl = "d:\\" + Guid.NewGuid() + ".jpg";
+                bmp.Save(firsturl);
+
+
+                for (int i = 0; i < 10; i++)
+                {
+                    System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ThreadStart(delegate
+                    {
+                        StringBuilder result = new StringBuilder(50);
+                        int codeId = Wrapper.uu_recognizeByCodeTypeAndPath(firsturl, 5106, result);
+                        string resultCode = CheckResult(result.ToString());
+                        resultstring = resultCode.ToString();
+
+                        //联众
+                        //string returnMess = RecYZM(firsturl, "nylyy0325", "19850325nyl");
+                        //resultstring = returnMess.Split('|')[0];
+
+
+                    }));
+                    t.IsBackground = true;
+                    t.Start();
+                    if (resultstring != "")
+                        break;
+
+                }
+
+                while (true)
+                {
+                    // string resultCode = CheckResult(result.ToString(), 108048, codeId, "840D0F4A-CE73-486D-A914-2DE4502BE64E");
+                    //if (resultCode != "")
+                    //{
+
+                    if (resultstring == "")
+                        continue;
+
+
+                    #region 验证码截取多少数字
+
+                    string outresultstring = "";
+                    if (resultstring.Length > 4)
+                    {
+                        outresultstring = resultstring;
+                        int[] counts = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.AutoNumberSubString);
+                        //Bitmap bmpcount = captureScreen(counts[0], counts[1], counts[2], counts[3]);  //captureScreen(715, 340, 50, 17);
+                        string counturl = "d:\\" + Guid.NewGuid() + ".jpg";
+                        //bmpcount.Save(counturl, ImageFormat.Jpeg);
+
+
+
+
+                        string autonumbercount = myorc.GetSubString(counts[0], counts[1], counts[2], counts[3], counturl); //Marshal.PtrToStringAnsi(OCRpart(counturl, -1, 0, 0, counts[2], counts[3]));
+
+                        string autonumbercountend = Marshal.PtrToStringAnsi(OCRpart(counturl, -1, 0, 0, counts[2], counts[3]));
+
+                        autonumbercount = autonumbercount.Replace("\r\n", "");
+
+
+                        //DataTable dt = DBHelper.GetTable("select * from PointSubString");
+                        //string qian4 = dt.DefaultView[0]["StringValue"].ToString();
+                        //string zhong4 = dt.DefaultView[1]["StringValue"].ToString();
+                        //string hou4 = dt.DefaultView[2]["StringValue"].ToString();
+
+
+                        //if (autonumbercount == hou4)//后四位
+                        //{
+                        //    outresultstring = outresultstring.Substring(2, 4);
+                        //}
+                        //else if (autonumbercount == zhong4)//第二到五位
+                        //{
+                        //    outresultstring = outresultstring.Substring(1, 4);
+
+                        //}
+                        //else
+                        //{
+                        //    outresultstring = outresultstring.Substring(0, 4);
+
+                        //}
+
+                        outresultstring = GetSubStringValue(outresultstring, autonumbercount, autonumbercountend);
+
+                    }
+                    else
+                    {
+                        outresultstring = resultstring;
+
+                    }
+
+                    #endregion
+
+
+
+                    //DBHelper.ExcuteSQL("insert into ErrorInfo([errormessage]) values('验证码为" + outresultstring + "')");
+                    int[] randomtextboxpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.RandomTextBox);
+                    //SetCursorPos(700, 420);
+                    SetCursorPos(randomtextboxpoint[0], randomtextboxpoint[1]);
+                    mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                    foreach (char onekey in outresultstring)
+                    {
+                        keybd_event((byte)keylist[onekey], 0, 0, 0);
+                        keybd_event((byte)keylist[onekey], 0, 0x2, 0);
+                    }
+                    canconfirm = true;
+                    resultstring = "";
+                    outresultstring = "";
+                    break;
+                    // }
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                DBHelper.ExcuteSQL("insert into ErrorInfo([errormessage]) values('" + resultstring + "和" + ex.Message + "')");
+                //WriteError(ex.Message);
+                Environment.Exit(0);
+
+            }
+
+
+            //StringBuilder result = new StringBuilder(50);
+            //int codeId = Wrapper.uu_recognizeByCodeTypeAndPath(firsturl, 1006, result);
+
+
+        }
+
+        public string GetSubStringValue(string outresultstring, string flagstring, string autonumbercountend)
+        {
+
+            if (flagstring.IndexOf("前") > -1 || flagstring.IndexOf("一") > -1)
+            {
+                outresultstring = outresultstring.Substring(0, 4);
+            }
+
+            else if (flagstring.IndexOf("后") > -1 || flagstring.IndexOf("三") > -1)
+            {
+                outresultstring = outresultstring.Substring(2, 4);
+
+            }
+
+            else
+            {
+                //DataTable dt = DBHelper.GetTable("select * from PointSubString");
+                //string qian4 = dt.DefaultView[0]["StringValue"].ToString();
+                //string zhong4 = dt.DefaultView[1]["StringValue"].ToString();
+                //string hou4 = dt.DefaultView[2]["StringValue"].ToString();
+
+
+                if (autonumbercountend.IndexOf("1") > -1 && autonumbercountend.IndexOf("4") > -1)//前四位
+                {
+                    outresultstring = outresultstring.Substring(0, 4);
+
+                }
+                else if (autonumbercountend.IndexOf("3") > -1 && autonumbercountend.IndexOf("6") > -1)//第三到六位
+                {
+                    outresultstring = outresultstring.Substring(2, 4);
+
+                }
+                else
+                {
+                    outresultstring = outresultstring.Substring(1, 4);
+                }
+
+                //outresultstring = outresultstring.Substring(1, 4);
+            }
+            return outresultstring;
+
+
+        }
+
+        public void EveryTimeRun(object source, ElapsedEventArgs e)
+        {
+
+            try
+            {
+
+                if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4)
+                {
+
+                    int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+
+                    SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+                    mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+                    canconfirm = false;
+                    firstflag = false;
+
+
+                }
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                //DBHelper.ExcuteSQL("insert into ErrorInfo([errormessage]) values('" + resultstring + "和" + ex.Message + "')");
+                //WriteError(ex.Message);
+                //Environment.Exit(0);
+
+            }
+
+
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+
+
+            string sql = "select * from CarPlan";
+            dtcarplan = DBHelper.GetTable(sql);
+            comboBox1.DisplayMember = "planname";
+            comboBox1.ValueMember = "id";
+            comboBox1.DataSource = dtcarplan;
+        }
+
+        private void tabPage1_Click(object sender, EventArgs e)
+        {
+
         }
 
 
