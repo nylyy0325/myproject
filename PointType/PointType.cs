@@ -117,8 +117,9 @@ namespace PointType
             //第一页面自定义加价输入框
             AddMoneyTextBox = 16,
             //第一页面自定义加价按钮
-            AddMoneyButton = 17
-
+            AddMoneyButton = 17,
+            //第二页面提示按钮
+            MessageBoxShow = 18
 
         }
 

@@ -54,6 +54,7 @@ namespace paipai
         int monisec = 0;
         bool canconfirm = false;
         Dictionary<char, Keys> numlist;
+        Dictionary<int, int> lastsecondlist;
         bool firstflag = false;
         int keycount = 0;
         public Form1()
@@ -87,6 +88,19 @@ namespace paipai
             numlist.Add('7', Keys.D7);
             numlist.Add('8', Keys.D8);
             numlist.Add('9', Keys.D9);
+
+            lastsecondlist = new Dictionary<int, int>();
+            lastsecondlist.Add(50, 800);
+            lastsecondlist.Add(51, 800);
+            lastsecondlist.Add(52, 700);
+            lastsecondlist.Add(53, 700);
+            lastsecondlist.Add(54, 600);
+            lastsecondlist.Add(55, 500);
+            lastsecondlist.Add(56, 400);
+            lastsecondlist.Add(57, 300);
+            lastsecondlist.Add(58, 300);
+            lastsecondlist.Add(59, 300);
+
             stringlist = new List<string>();
             keylist = new Dictionary<char, Keys>();
             keylist.Add('0', Keys.D0);
@@ -398,11 +412,13 @@ namespace paipai
 
             }
 
-            if (e.KeyData == Keys.F3)
+
+
+            if (e.KeyData == Keys.Escape)
             {
 
                 flag48 = false;
-                FirstPullPrice();
+                FirstPullPrice(true);
                 //InitPrice();
             }
 
@@ -416,9 +432,19 @@ namespace paipai
                 SecondPullPrice();
 
             }
+            else if (e.KeyData == Keys.Space)
+            {
+                int[] picpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.RandomPic);
+                SetCursorPos(picpoint[0], picpoint[1]);
+                mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+                int[] pictextpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.RandomTextBox);
+                SetCursorPos(pictextpoint[0], pictextpoint[1]);
+                mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
 
 
 
+            }
             else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Enter)
             {
                 //string url = System.Windows.Forms.Application.StartupPath + @"\CheckPrice.exe";//@"D:\拍牌价格监测\CheckPrice\CheckPrice\bin\x86\Debug\CheckPrice.exe";//System.Windows.Forms.Application.StartupPath.Replace(@"paipai\paipai", @"paipai\\CheckPrice") + @"\CheckPrice.exe";
@@ -444,8 +470,21 @@ namespace paipai
 
 
 
-        public void FirstPullPrice()
+        public void FirstPullPrice(bool f3flag = false)
         {
+            if (f3flag)
+            {
+                int[] messageboxshowpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.MessageBoxShow);
+                SetCursorPos(messageboxshowpoint[0], messageboxshowpoint[1]);
+                mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                int nowlistkey = DateTime.Now.Second < 50 ? 50 : DateTime.Now.Second;
+                addmoney = lastsecondlist[nowlistkey];
+
+
+
+            }
+
+
 
 
             #region 自定义加价输入框选中
