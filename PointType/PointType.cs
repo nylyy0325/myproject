@@ -21,6 +21,15 @@ namespace PointType
 
 
         static DataTable dt;
+
+        public static void UpdatePointDatatable()
+        {
+            string xmlurl = System.Windows.Forms.Application.StartupPath + @"\AllPoint.xml";
+            XmlHelper help = new XmlHelper(xmlurl);
+            dt = help.GetData("AllPoint");
+        
+        }
+
         public static int[] GetPointValue(PointType.Coordinate type)
         {
             if (dt == null)

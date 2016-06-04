@@ -31,6 +31,8 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.keycount_label = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.button4 = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -58,13 +60,18 @@
             this.comboBox_selectitem = new System.Windows.Forms.ComboBox();
             this.textBox_selectvalue = new System.Windows.Forms.TextBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.label8 = new System.Windows.Forms.Label();
-            this.keycount_label = new System.Windows.Forms.Label();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.btn_endgetpoint = new System.Windows.Forms.Button();
+            this.btn_startgetpoint = new System.Windows.Forms.Button();
+            this.textBox_point_x = new System.Windows.Forms.TextBox();
+            this.textBox_point_y = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.tabPage4.SuspendLayout();
             this.SuspendLayout();
             // 
             // comboBox1
@@ -82,6 +89,7 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -109,6 +117,23 @@
             this.tabPage1.Text = "策略选择";
             this.tabPage1.UseVisualStyleBackColor = true;
             this.tabPage1.Click += new System.EventHandler(this.tabPage1_Click);
+            // 
+            // keycount_label
+            // 
+            this.keycount_label.AutoSize = true;
+            this.keycount_label.Location = new System.Drawing.Point(125, 184);
+            this.keycount_label.Name = "keycount_label";
+            this.keycount_label.Size = new System.Drawing.Size(0, 12);
+            this.keycount_label.TabIndex = 10;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 184);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(113, 12);
+            this.label8.TabIndex = 9;
+            this.label8.Text = "验证码已触发个数：";
             // 
             // button4
             // 
@@ -371,22 +396,63 @@
             this.dataGridView1.Size = new System.Drawing.Size(343, 188);
             this.dataGridView1.TabIndex = 0;
             // 
-            // label8
+            // tabPage4
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 184);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(113, 12);
-            this.label8.TabIndex = 9;
-            this.label8.Text = "验证码已触发个数：";
+            this.tabPage4.Controls.Add(this.label9);
+            this.tabPage4.Controls.Add(this.textBox_point_y);
+            this.tabPage4.Controls.Add(this.textBox_point_x);
+            this.tabPage4.Controls.Add(this.btn_endgetpoint);
+            this.tabPage4.Controls.Add(this.btn_startgetpoint);
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(355, 308);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "快速调整坐标";
+            this.tabPage4.UseVisualStyleBackColor = true;
             // 
-            // keycount_label
+            // btn_endgetpoint
             // 
-            this.keycount_label.AutoSize = true;
-            this.keycount_label.Location = new System.Drawing.Point(125, 184);
-            this.keycount_label.Name = "keycount_label";
-            this.keycount_label.Size = new System.Drawing.Size(0, 12);
-            this.keycount_label.TabIndex = 10;
+            this.btn_endgetpoint.Location = new System.Drawing.Point(123, 191);
+            this.btn_endgetpoint.Name = "btn_endgetpoint";
+            this.btn_endgetpoint.Size = new System.Drawing.Size(85, 23);
+            this.btn_endgetpoint.TabIndex = 1;
+            this.btn_endgetpoint.Text = "结束获取坐标";
+            this.btn_endgetpoint.UseVisualStyleBackColor = true;
+            this.btn_endgetpoint.Click += new System.EventHandler(this.btn_endgetpoint_Click);
+            // 
+            // btn_startgetpoint
+            // 
+            this.btn_startgetpoint.Location = new System.Drawing.Point(123, 149);
+            this.btn_startgetpoint.Name = "btn_startgetpoint";
+            this.btn_startgetpoint.Size = new System.Drawing.Size(85, 23);
+            this.btn_startgetpoint.TabIndex = 0;
+            this.btn_startgetpoint.Text = "开始获取坐标";
+            this.btn_startgetpoint.UseVisualStyleBackColor = true;
+            this.btn_startgetpoint.Click += new System.EventHandler(this.btn_startgetpoint_Click);
+            // 
+            // textBox_point_x
+            // 
+            this.textBox_point_x.Location = new System.Drawing.Point(123, 73);
+            this.textBox_point_x.Name = "textBox_point_x";
+            this.textBox_point_x.Size = new System.Drawing.Size(100, 21);
+            this.textBox_point_x.TabIndex = 3;
+            // 
+            // textBox_point_y
+            // 
+            this.textBox_point_y.Location = new System.Drawing.Point(123, 109);
+            this.textBox_point_y.Name = "textBox_point_y";
+            this.textBox_point_y.Size = new System.Drawing.Size(100, 21);
+            this.textBox_point_y.TabIndex = 4;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(121, 36);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(41, 12);
+            this.label9.TabIndex = 5;
+            this.label9.Text = "label9";
             // 
             // Form1
             // 
@@ -405,6 +471,8 @@
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -443,6 +511,12 @@
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Label keycount_label;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.Button btn_endgetpoint;
+        private System.Windows.Forms.Button btn_startgetpoint;
+        private System.Windows.Forms.TextBox textBox_point_y;
+        private System.Windows.Forms.TextBox textBox_point_x;
+        private System.Windows.Forms.Label label9;
 
 
     }

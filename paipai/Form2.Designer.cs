@@ -50,6 +50,7 @@
             this.Name = "Form2";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "主界面";
+            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.Form2_MouseDoubleClick);
             this.ResumeLayout(false);
 
         }

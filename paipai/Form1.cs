@@ -32,6 +32,7 @@ namespace paipai
     {
 
         KeyboardHook.KeyboardHook kh;
+        MouseHook mh;
         public int myprice;
         string url;
         List<string> stringlist;
@@ -57,6 +58,9 @@ namespace paipai
         Dictionary<int, int> lastsecondlist;
         bool firstflag = false;
         int keycount = 0;
+        bool pointflag = false;
+        int pointcount = 1;
+        Dictionary<int, string> pointlist;
         public Form1()
         {
             myorc = new MyOcrKing.MyOrc(ApiKey);
@@ -88,6 +92,17 @@ namespace paipai
             numlist.Add('7', Keys.D7);
             numlist.Add('8', Keys.D8);
             numlist.Add('9', Keys.D9);
+
+            numlist.Add('a', Keys.NumPad0);
+            numlist.Add('b', Keys.NumPad1);
+            numlist.Add('c', Keys.NumPad2);
+            numlist.Add('d', Keys.NumPad3);
+            numlist.Add('e', Keys.NumPad4);
+            numlist.Add('f', Keys.NumPad5);
+            numlist.Add('g', Keys.NumPad6);
+            numlist.Add('h', Keys.NumPad7);
+            numlist.Add('i', Keys.NumPad8);
+            numlist.Add('j', Keys.NumPad9);
 
             lastsecondlist = new Dictionary<int, int>();
             lastsecondlist.Add(50, 800);
@@ -178,6 +193,12 @@ namespace paipai
             }
             moni_min.SelectedItem = DateTime.Now.Minute;
 
+            pointlist = new Dictionary<int, string>();
+            pointlist.Add(1, "自定义加价输入框");
+            pointlist.Add(2, "自定义加价确认按钮");
+            pointlist.Add(3, "出价按钮");
+            pointlist.Add(4, "最后提交按钮");
+            pointlist.Add(5, "提示框关闭按钮");
 
 
             string sql = "select * from CarPlan";
@@ -200,8 +221,7 @@ namespace paipai
             timer.Start();
             flaghandler += ChangeLable;
             flaghandler += KeyCountShow;
-            tabControl1.TabPages.RemoveAt(1);
-
+            //tabControl1.TabPages.RemoveAt(1);
 
 
 
@@ -217,6 +237,8 @@ namespace paipai
             label4.Text = flag48 ? "开启" : "关闭";
 
         }
+
+
 
         public void KeyCountShow()
         {
@@ -290,19 +312,30 @@ namespace paipai
             return NetworkInterface.GetAllNetworkInterfaces();
         }
 
+
+        public void CheckPointVersion()
+        {
+
+
+        }
+
         public void CheckVersion()
         {
             while (true)
             {
                 string xmlurl = System.Windows.Forms.Application.StartupPath + @"\Version.xml";
-                int sqlVersion = GetNowVersion();
+                int[] allsqlVersion = GetNowVersion();
+                int sqlVersion = allsqlVersion[0];
+                int sqlpointVersion = allsqlVersion[1];
                 int nowVersion = 0;
+                int nowpointVersion = 0;
                 bool flag = true;
                 if (File.Exists(xmlurl))//存在xml
                 {
                     XmlHelper xh = new XmlHelper(xmlurl);
                     DataTable xmltable = xh.GetData("NowVersion");
                     nowVersion = Convert.ToInt32(xmltable.DefaultView[0][0]);
+                    nowpointVersion = Convert.ToInt32(xmltable.DefaultView[0][1]);
                     if (nowVersion < sqlVersion)
                     {
                         flag = true;
@@ -312,6 +345,20 @@ namespace paipai
                         flag = false;
 
                     }
+
+                    if (nowpointVersion < sqlpointVersion)
+                    {
+
+
+                        xh.Replace("NowVersion/PointVersion", sqlpointVersion.ToString());
+                        xh.Save();
+                        GetPoint();
+                        PointType.PointType.UpdatePointDatatable();
+                        MessageBox.Show("坐标更新成功");
+
+
+                    }
+
                     //xh.Replace("NowVersion/Version", sqlVersion.ToString());
                     //xh.Save();
 
@@ -339,8 +386,22 @@ namespace paipai
 
         }
 
+        public static void GetPoint()
+        {
+            string sql = "select * from [dbo].[PointVaule] FOR XML RAW('PointValue'),ROOT('AllPoint'),elements";
+
+            string savepath = System.Windows.Forms.Application.StartupPath + @"\AllPoint.xml";
+            DBHelper.GetXmlBySql(sql, savepath);
+
+
+        }
+
+
+
+
         public void CreateXmlFile(string xmlpath, int version)
         {
+
             XmlDocument xmlDoc = new XmlDocument();
             //创建类型声明节点  
             XmlNode node = xmlDoc.CreateXmlDeclaration("1.0", "utf-8", "");
@@ -348,6 +409,9 @@ namespace paipai
             //创建根节点  
             XmlNode root = xmlDoc.CreateElement("NowVersion");
             xmlDoc.AppendChild(root);
+
+
+
             CreateNode(xmlDoc, root, "Version", version.ToString());
             try
             {
@@ -368,11 +432,13 @@ namespace paipai
             parentNode.AppendChild(node);
         }
 
-        public int GetNowVersion()
+        public int[] GetNowVersion()
         {
             string sql = "select * from VersionControl";
             DataTable dt = DBHelper.GetTable(sql);
-            return Convert.ToInt32(dt.DefaultView[0][1]);
+            int[] result = { Convert.ToInt32(dt.DefaultView[0][1]), Convert.ToInt32(dt.DefaultView[0][2]) };
+
+            return result;
 
 
         }
@@ -382,7 +448,24 @@ namespace paipai
             kh = new KeyboardHook.KeyboardHook();
             kh.SetHook();
             kh.OnKeyDownEvent += kh_OnKeyDownEvent;
+
+            mh = new MouseHook();
+            mh.SetHook();
+            mh.MouseMoveEvent += mh_MouseMoveEvent;
+            //mh.MouseDBClickEvent += mh_MouseDBClickEvent;
         }
+
+        void mh_MouseMoveEvent(object sender, MouseEventArgs e)
+        {
+            int x = e.Location.X;
+            int y = e.Location.Y;
+            //label9.Text = string.Format("当前鼠标位置为：（{0}，{1}）", x, y);
+            textBox_point_x.Text = x.ToString();
+            textBox_point_y.Text = y.ToString();
+        }
+
+
+
 
 
         void kh_OnKeyDownEvent(object sender, KeyEventArgs e)
@@ -432,19 +515,83 @@ namespace paipai
                 SecondPullPrice();
 
             }
-            else if (e.KeyData == Keys.Space)
+            //else if (e.KeyData == Keys.Space)
+            //{
+            //    int[] picpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.RandomPic);
+            //    SetCursorPos(picpoint[0], picpoint[1]);
+            //    mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+            //    int[] pictextpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.RandomTextBox);
+            //    SetCursorPos(pictextpoint[0], pictextpoint[1]);
+            //    mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+
+
+            //}
+
+            else if (e.KeyData == Keys.Q && pointflag)
             {
-                int[] picpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.RandomPic);
-                SetCursorPos(picpoint[0], picpoint[1]);
-                mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                string sql = "update [PointVaule] set PointX='" + textBox_point_x.Text + "',PointY='" + textBox_point_y.Text + "'";
 
-                int[] pictextpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.RandomTextBox);
-                SetCursorPos(pictextpoint[0], pictextpoint[1]);
-                mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                if (pointcount == 1)
+                {
 
+                    sql += " where typeid=16";
+
+                }
+                else if (pointcount == 2)
+                {
+                    sql += " where typeid=17";
+
+
+                }
+                else if (pointcount == 3)
+                {
+                    sql += " where typeid=3";
+
+
+                }
+                else if (pointcount == 4)
+                {
+                    sql += " where typeid=9";
+
+
+
+                }
+                else if (pointcount == 5)
+                {
+                    sql += " where typeid=18";
+                }
+
+
+                else
+                    sql = "";
+
+
+                if (sql == "")
+                {
+                    label9.Text = "已超过上限,重新开始";
+                    pointcount = 1;
+                    //ChangeLable("已超过上限");
+                    return;
+                }
+
+                bool sqlflag = DBHelper.ExcuteSQL(sql) > 0;
+                if (sqlflag)
+                {
+                    label9.Text = "坐标" + pointlist[pointcount] + "获取成功";
+                    //ChangeLable("坐标" + pointlist[pointcount] + "获取成功");
+                    pointcount++;
+                }
+                else
+                {
+                    label9.Text = "插入不成功";
+                    // ChangeLable("插入不成功");
+                }
 
 
             }
+
             else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Enter)
             {
                 //string url = System.Windows.Forms.Application.StartupPath + @"\CheckPrice.exe";//@"D:\拍牌价格监测\CheckPrice\CheckPrice\bin\x86\Debug\CheckPrice.exe";//System.Windows.Forms.Application.StartupPath.Replace(@"paipai\paipai", @"paipai\\CheckPrice") + @"\CheckPrice.exe";
@@ -477,6 +624,9 @@ namespace paipai
                 int[] messageboxshowpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.MessageBoxShow);
                 SetCursorPos(messageboxshowpoint[0], messageboxshowpoint[1]);
                 mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+
+
                 int nowlistkey = DateTime.Now.Second < 50 ? 50 : DateTime.Now.Second;
                 addmoney = lastsecondlist[nowlistkey];
 
@@ -1276,6 +1426,24 @@ namespace paipai
 
         private void tabPage1_Click(object sender, EventArgs e)
         {
+
+        }
+
+        private void btn_startgetpoint_Click(object sender, EventArgs e)
+        {
+
+            pointflag = true;
+
+
+        }
+
+        private void btn_endgetpoint_Click(object sender, EventArgs e)
+        {
+            string sql = "update [dbo].[VersionControl] set [PointVersion] = [PointVersion]+1";
+            bool pointupdateflag = DBHelper.ExcuteSQL(sql) > 0;
+            MessageBox.Show(pointupdateflag ? "更新成功" : "更新失败");
+
+            pointflag = false;
 
         }
 

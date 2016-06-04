@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
+using System.Xml;
 
 namespace paipai
 {
@@ -423,7 +424,29 @@ namespace paipai
             return AddParameter(parameterName, DBNull.Value, dbType, 0, ParameterDirection.Output);
         }
 
+        public static XmlDocument GetXmlBySql(string sql, string savepath)
+        {
+            XmlDocument doc = new XmlDocument();
+            using (SqlConnection conn = new SqlConnection(strConn))
+            {
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.CommandType = CommandType.Text;
+                conn.Open();
+                XmlReader reader = cmd.ExecuteXmlReader();
+                doc.Load(reader);
+                reader.Close();
 
+            }
+            XmlTextWriter writer = new XmlTextWriter(savepath, System.Text.Encoding.UTF8);
+            writer.Formatting = Formatting.Indented;
+            doc.Save(writer);
+            writer.Close();
+
+            return doc;
+
+
+
+        }
 
 
     }

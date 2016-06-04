@@ -11,11 +11,14 @@ namespace paipai
 {
     public partial class Form2 : Form
     {
+
+
+        public static bool getpoint = false;
         public Form2()
         {
             this.Location = new Point(0, 0);
             InitializeComponent();
-            //webBrowser1.Navigate("https://paimai2.alltobid.com/bid/2016041601/login.htm");
+            //webBrowser1.Navigate("https://paimai2.alltobid.com/bid/2016052101/login.htm");
             webBrowser1.Navigate("http://moni.51hupai.org/?new=2");
             //webBrowser1.Navigate("http://test.alltobid.com/");
         }
@@ -29,6 +32,11 @@ namespace paipai
         private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
 
+        }
+
+        private void Form2_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            MessageBox.Show(getpoint ? "true" : "false");
         }
     }
 }
