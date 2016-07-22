@@ -18,7 +18,7 @@ namespace paipai
         {
             this.Location = new Point(0, 0);
             InitializeComponent();
-            //webBrowser1.Navigate("https://paimai2.alltobid.com/bid/2016052101/login.htm");
+            //webBrowser1.Navigate("https://paimai2.alltobid.com/bid/2016061801/login.htm");
             webBrowser1.Navigate("http://moni.51hupai.org/?new=2");
             //webBrowser1.Navigate("http://test.alltobid.com/");
         }

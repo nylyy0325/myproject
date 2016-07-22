@@ -61,11 +61,12 @@
             this.textBox_selectvalue = new System.Windows.Forms.TextBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.label9 = new System.Windows.Forms.Label();
+            this.textBox_point_y = new System.Windows.Forms.TextBox();
+            this.textBox_point_x = new System.Windows.Forms.TextBox();
             this.btn_endgetpoint = new System.Windows.Forms.Button();
             this.btn_startgetpoint = new System.Windows.Forms.Button();
-            this.textBox_point_x = new System.Windows.Forms.TextBox();
-            this.textBox_point_y = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -398,6 +399,7 @@
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.label10);
             this.tabPage4.Controls.Add(this.label9);
             this.tabPage4.Controls.Add(this.textBox_point_y);
             this.tabPage4.Controls.Add(this.textBox_point_x);
@@ -410,6 +412,29 @@
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "快速调整坐标";
             this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(121, 36);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(41, 12);
+            this.label9.TabIndex = 5;
+            this.label9.Text = "label9";
+            // 
+            // textBox_point_y
+            // 
+            this.textBox_point_y.Location = new System.Drawing.Point(123, 109);
+            this.textBox_point_y.Name = "textBox_point_y";
+            this.textBox_point_y.Size = new System.Drawing.Size(100, 21);
+            this.textBox_point_y.TabIndex = 4;
+            // 
+            // textBox_point_x
+            // 
+            this.textBox_point_x.Location = new System.Drawing.Point(123, 73);
+            this.textBox_point_x.Name = "textBox_point_x";
+            this.textBox_point_x.Size = new System.Drawing.Size(100, 21);
+            this.textBox_point_x.TabIndex = 3;
             // 
             // btn_endgetpoint
             // 
@@ -431,28 +456,14 @@
             this.btn_startgetpoint.UseVisualStyleBackColor = true;
             this.btn_startgetpoint.Click += new System.EventHandler(this.btn_startgetpoint_Click);
             // 
-            // textBox_point_x
+            // label10
             // 
-            this.textBox_point_x.Location = new System.Drawing.Point(123, 73);
-            this.textBox_point_x.Name = "textBox_point_x";
-            this.textBox_point_x.Size = new System.Drawing.Size(100, 21);
-            this.textBox_point_x.TabIndex = 3;
-            // 
-            // textBox_point_y
-            // 
-            this.textBox_point_y.Location = new System.Drawing.Point(123, 109);
-            this.textBox_point_y.Name = "textBox_point_y";
-            this.textBox_point_y.Size = new System.Drawing.Size(100, 21);
-            this.textBox_point_y.TabIndex = 4;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(121, 36);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(41, 12);
-            this.label9.TabIndex = 5;
-            this.label9.Text = "label9";
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(121, 233);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(47, 12);
+            this.label10.TabIndex = 6;
+            this.label10.Text = "label10";
             // 
             // Form1
             // 
@@ -517,6 +528,7 @@
         private System.Windows.Forms.TextBox textBox_point_y;
         private System.Windows.Forms.TextBox textBox_point_x;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label10;
 
 
     }

@@ -25,6 +25,7 @@ using ConsoleApplication1;
 using System.Security.Cryptography;
 using PointType;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 namespace paipai
 {
 
@@ -63,6 +64,8 @@ namespace paipai
         Dictionary<int, string> pointlist;
         public Form1()
         {
+
+
             myorc = new MyOcrKing.MyOrc(ApiKey);
             this.StartPosition = FormStartPosition.Manual;
             this.Location = new Point(1000, 0);
@@ -105,8 +108,8 @@ namespace paipai
             numlist.Add('j', Keys.NumPad9);
 
             lastsecondlist = new Dictionary<int, int>();
-            lastsecondlist.Add(50, 800);
-            lastsecondlist.Add(51, 800);
+            lastsecondlist.Add(50, 700);
+            lastsecondlist.Add(51, 700);
             lastsecondlist.Add(52, 700);
             lastsecondlist.Add(53, 700);
             lastsecondlist.Add(54, 600);
@@ -354,8 +357,8 @@ namespace paipai
                         xh.Save();
                         GetPoint();
                         PointType.PointType.UpdatePointDatatable();
-                        MessageBox.Show("坐标更新成功");
-
+                        //MessageBox.Show("坐标更新成功");
+                        label10.Text = "坐标更新成功";
 
                     }
 
@@ -579,6 +582,7 @@ namespace paipai
                 bool sqlflag = DBHelper.ExcuteSQL(sql) > 0;
                 if (sqlflag)
                 {
+                    
                     label9.Text = "坐标" + pointlist[pointcount] + "获取成功";
                     //ChangeLable("坐标" + pointlist[pointcount] + "获取成功");
                     pointcount++;
@@ -1449,6 +1453,26 @@ namespace paipai
 
 
 
+      
+
+        [DllImport("kernel32.dll")]
+        private static extern bool SetLocalTime(ref SYSTEMTIME time);
+        [StructLayout(LayoutKind.Sequential)]
+        private struct SYSTEMTIME
+        {
+            public short year;
+            public short month;
+            public short dayOfWeek;
+            public short day;
+            public short hour;
+            public short minute;
+            public short second;
+            public short milliseconds;
+        }
+
+
+   
+      
 
 
     }
