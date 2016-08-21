@@ -61,18 +61,34 @@
             this.textBox_selectvalue = new System.Windows.Forms.TextBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.textBox_point_y = new System.Windows.Forms.TextBox();
             this.textBox_point_x = new System.Windows.Forms.TextBox();
             this.btn_endgetpoint = new System.Windows.Forms.Button();
             this.btn_startgetpoint = new System.Windows.Forms.Button();
-            this.label10 = new System.Windows.Forms.Label();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.check_selecttype = new System.Windows.Forms.ComboBox();
+            this.button6 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.check_height = new System.Windows.Forms.TextBox();
+            this.check_width = new System.Windows.Forms.TextBox();
+            this.check_y = new System.Windows.Forms.TextBox();
+            this.check_x = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.check_show = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tabPage4.SuspendLayout();
+            this.tabPage5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // comboBox1
@@ -91,6 +107,7 @@
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
+            this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -413,6 +430,15 @@
             this.tabPage4.Text = "快速调整坐标";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(121, 233);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(47, 12);
+            this.label10.TabIndex = 6;
+            this.label10.Text = "label10";
+            // 
             // label9
             // 
             this.label9.AutoSize = true;
@@ -456,14 +482,141 @@
             this.btn_startgetpoint.UseVisualStyleBackColor = true;
             this.btn_startgetpoint.Click += new System.EventHandler(this.btn_startgetpoint_Click);
             // 
-            // label10
+            // tabPage5
             // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(121, 233);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(47, 12);
-            this.label10.TabIndex = 6;
-            this.label10.Text = "label10";
+            this.tabPage5.Controls.Add(this.check_selecttype);
+            this.tabPage5.Controls.Add(this.button6);
+            this.tabPage5.Controls.Add(this.button5);
+            this.tabPage5.Controls.Add(this.pictureBox1);
+            this.tabPage5.Controls.Add(this.check_height);
+            this.tabPage5.Controls.Add(this.check_width);
+            this.tabPage5.Controls.Add(this.check_y);
+            this.tabPage5.Controls.Add(this.check_x);
+            this.tabPage5.Controls.Add(this.label14);
+            this.tabPage5.Controls.Add(this.label13);
+            this.tabPage5.Controls.Add(this.label12);
+            this.tabPage5.Controls.Add(this.label11);
+            this.tabPage5.Controls.Add(this.check_show);
+            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage5.Size = new System.Drawing.Size(355, 308);
+            this.tabPage5.TabIndex = 4;
+            this.tabPage5.Text = "价格监视";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // check_selecttype
+            // 
+            this.check_selecttype.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.check_selecttype.FormattingEnabled = true;
+            this.check_selecttype.Items.AddRange(new object[] {
+            "我的出价",
+            "区间最大出价"});
+            this.check_selecttype.Location = new System.Drawing.Point(202, 6);
+            this.check_selecttype.Name = "check_selecttype";
+            this.check_selecttype.Size = new System.Drawing.Size(147, 20);
+            this.check_selecttype.TabIndex = 12;
+            // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(249, 161);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(75, 23);
+            this.button6.TabIndex = 11;
+            this.button6.Text = "保存坐标";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(249, 190);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(75, 23);
+            this.button5.TabIndex = 10;
+            this.button5.Text = "测试显示";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(6, 161);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(190, 75);
+            this.pictureBox1.TabIndex = 9;
+            this.pictureBox1.TabStop = false;
+            // 
+            // check_height
+            // 
+            this.check_height.Location = new System.Drawing.Point(249, 130);
+            this.check_height.Name = "check_height";
+            this.check_height.Size = new System.Drawing.Size(100, 21);
+            this.check_height.TabIndex = 8;
+            // 
+            // check_width
+            // 
+            this.check_width.Location = new System.Drawing.Point(249, 95);
+            this.check_width.Name = "check_width";
+            this.check_width.Size = new System.Drawing.Size(100, 21);
+            this.check_width.TabIndex = 7;
+            // 
+            // check_y
+            // 
+            this.check_y.Location = new System.Drawing.Point(249, 62);
+            this.check_y.Name = "check_y";
+            this.check_y.Size = new System.Drawing.Size(100, 21);
+            this.check_y.TabIndex = 6;
+            // 
+            // check_x
+            // 
+            this.check_x.Location = new System.Drawing.Point(249, 34);
+            this.check_x.Name = "check_x";
+            this.check_x.Size = new System.Drawing.Size(100, 21);
+            this.check_x.TabIndex = 5;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(205, 133);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(41, 12);
+            this.label14.TabIndex = 4;
+            this.label14.Text = "height";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(205, 98);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(35, 12);
+            this.label13.TabIndex = 3;
+            this.label13.Text = "width";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(205, 65);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(11, 12);
+            this.label12.TabIndex = 2;
+            this.label12.Text = "y";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(205, 37);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(11, 12);
+            this.label11.TabIndex = 1;
+            this.label11.Text = "x";
+            // 
+            // check_show
+            // 
+            this.check_show.Location = new System.Drawing.Point(6, 6);
+            this.check_show.Multiline = true;
+            this.check_show.Name = "check_show";
+            this.check_show.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.check_show.Size = new System.Drawing.Size(190, 139);
+            this.check_show.TabIndex = 0;
             // 
             // Form1
             // 
@@ -484,6 +637,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
+            this.tabPage5.ResumeLayout(false);
+            this.tabPage5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -529,6 +685,20 @@
         private System.Windows.Forms.TextBox textBox_point_x;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.TextBox check_height;
+        private System.Windows.Forms.TextBox check_width;
+        private System.Windows.Forms.TextBox check_y;
+        private System.Windows.Forms.TextBox check_x;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.ComboBox check_selecttype;
+        private System.Windows.Forms.TextBox check_show;
 
 
     }

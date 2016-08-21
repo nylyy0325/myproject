@@ -6,7 +6,8 @@ using System.Drawing;
 
 using System.Runtime.InteropServices;
 using System.Text;
-
+using AvensLab.Service;
+using AvensLab.Service.Models;
 using System.Windows.Forms;
 using System.Threading;
 using System.Reflection;
@@ -31,7 +32,8 @@ namespace paipai
 
     public partial class Form1 : Form
     {
-
+        const string language = "eng";
+        string TessractData = System.Windows.Forms.Application.StartupPath + @"\tessdata\";
         KeyboardHook.KeyboardHook kh;
         MouseHook mh;
         public int myprice;
@@ -66,7 +68,7 @@ namespace paipai
         {
 
 
-            myorc = new MyOcrKing.MyOrc(ApiKey);
+            //myorc = new MyOcrKing.MyOrc(ApiKey);
             this.StartPosition = FormStartPosition.Manual;
             this.Location = new Point(1000, 0);
             InitializeComponent();
@@ -283,6 +285,9 @@ namespace paipai
                     FirstPullPrice();
                     //keybd_event((byte)Keys.F3, 0, 0, 0);
                     //keybd_event((byte)Keys.F3, 0, 0x2, 0);
+
+
+
                 }
 
 
@@ -582,7 +587,7 @@ namespace paipai
                 bool sqlflag = DBHelper.ExcuteSQL(sql) > 0;
                 if (sqlflag)
                 {
-                    
+
                     label9.Text = "坐标" + pointlist[pointcount] + "获取成功";
                     //ChangeLable("坐标" + pointlist[pointcount] + "获取成功");
                     pointcount++;
@@ -603,6 +608,11 @@ namespace paipai
                 //Process.Start(url, myprice.ToString() + " " + pullsecond);
 
 
+                Thread.Sleep(500);
+                int[] mypricepoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.MyPrice);
+                myprice = GetNumber(mypricepoint[0], mypricepoint[1], mypricepoint[2], mypricepoint[3], @"d:\" + Guid.NewGuid() + ".jpg");
+
+                //myprice = GetNumberGoogle(mypricepoint[0], mypricepoint[1], mypricepoint[2], mypricepoint[3]);
                 System.Timers.Timer t = new System.Timers.Timer();
                 t.Elapsed += new ElapsedEventHandler(EveryTimeRun);
                 t.Interval = 400;
@@ -617,6 +627,186 @@ namespace paipai
 
             }
 
+        }
+
+        public int GetNumberGoogle(int x, int y, int width, int height)
+        {
+            Bitmap btm = captureScreen(x, y, width, height, 3);
+            btm = ConvertTo1Bpp1(btm);
+            tessnet2.Tesseract ocr = new tessnet2.Tesseract();//声明一个OCR类
+            ocr.SetVariable("tessedit_char_whitelist", "0123456789"); //设置识别变量，当前只能识别数字。
+            ocr.Init(System.Windows.Forms.Application.StartupPath + @"\tessdata", "eng", false); //应用当前语言包。注，Tessnet2是支持多国语的。语言包下载链接：http://code.google.com/p/tesseract-ocr/downloads/list
+            Monitor.Enter(this);//因为是多线程，所以用到了Monitor。  
+            List<tessnet2.Word> result = ocr.DoOCR(btm, Rectangle.Empty);//执行识别操作
+            string wordresult = "";
+            foreach (tessnet2.Word word in result)
+            {
+                wordresult += word.Text;
+
+            }
+            Monitor.Exit(this);
+            return Convert.ToInt16(wordresult);
+
+        }
+
+        public Bitmap ConvertTo1Bpp1(Bitmap bmp)
+        {
+            int average = 0;
+            for (int i = 0; i < bmp.Width; i++)
+            {
+                for (int j = 0; j < bmp.Height; j++)
+                {
+                    Color color = bmp.GetPixel(i, j);
+                    average += color.B;
+                }
+            }
+            average = (int)average / (bmp.Width * bmp.Height);
+
+            for (int i = 0; i < bmp.Width; i++)
+            {
+                for (int j = 0; j < bmp.Height; j++)
+                {
+                    //获取该点的像素的RGB的颜色
+                    Color color = bmp.GetPixel(i, j);
+                    int value = 255 - color.B;
+                    Color newColor = value > average ? Color.FromArgb(0, 0, 0) : Color.FromArgb(255, 255, 255);
+                    bmp.SetPixel(i, j, newColor);
+                }
+            }
+            return bmp;
+        }
+
+
+        public int GetNumber(int x, int y, int width, int height, string url)
+        {
+
+            Bitmap btm = captureScreen(x, y, width, height, 3);
+            Monitor.Enter(this);//因为是多线程，所以用到了Monitor。 
+
+            string defaultList = "0123456789";
+            using (var test = new Tesseract.TesseractEngine(TessractData, language))
+            {
+                test.SetVariable("tessedit_char_whitelist", defaultList);
+                ToGrey(btm);
+                Thresholding(btm);
+                using (var tmpPage = test.Process(btm))
+                {
+                    string resault = tmpPage.GetText();
+                    resault = resault.Replace("\n", "");
+                    int resaultvalue = 0;
+                    int.TryParse(resault, out resaultvalue);
+                    return resaultvalue;
+                }
+
+
+            }
+
+
+            #region 旧方法
+
+            //var ocrKing = new OcrKing(ApiKey)
+            //{
+            //    //Language = Language.Eng, 
+            //    //Service = Service.OcrKingForCaptcha, 
+            //    //Charset = Charset.DigitLowerUpper
+
+            //    Language = Language.Eng,
+            //    Service = Service.OcrKingForCaptcha,
+            //    Charset = Charset.PhoneNumber
+            //};
+
+            //Bitmap btm = captureScreen(x, y, width, height, 3);
+            //Monitor.Enter(this);//因为是多线程，所以用到了Monitor。  
+            //btm.Save(url, ImageFormat.Jpeg);
+            //ocrKing.Type = "http://www.nopreprocess.com";
+            //ocrKing.FilePath = url;
+            //ocrKing.DoService();
+            //Monitor.Exit(this);
+            //string number = this.ParseResult(ocrKing.OcrResult, ocrKing.ProcessStatus);
+            ////if (number != "")
+            //try
+            //{
+            //    return Convert.ToInt32(number);
+            //}
+            //catch
+            //{
+            //    string inserterror = "insert into [dbo].[ErrorInfo] values('" + number + "',getdate());";
+            //    DBHelper.ExcuteSQL(inserterror);
+            //    return 0;
+            //}
+
+
+
+
+            #endregion
+
+
+        }
+
+        void ToGrey(Bitmap img1)
+        {
+            for (int i = 0; i < img1.Width; i++)
+            {
+                for (int j = 0; j < img1.Height; j++)
+                {
+                    Color pixelColor = img1.GetPixel(i, j);
+                    //计算灰度值
+                    int grey = (int)(0.299 * pixelColor.R + 0.587 * pixelColor.G + 0.114 * pixelColor.B);
+                    Color newColor = Color.FromArgb(grey, grey, grey);
+                    img1.SetPixel(i, j, newColor);
+                }
+            }
+        }
+        void Thresholding(Bitmap img1)
+        {
+            int[] histogram = new int[256];
+            int minGrayValue = 255, maxGrayValue = 0;
+            //求取直方图
+            for (int i = 0; i < img1.Width; i++)
+            {
+                for (int j = 0; j < img1.Height; j++)
+                {
+                    Color pixelColor = img1.GetPixel(i, j);
+                    histogram[pixelColor.R]++;
+                    if (pixelColor.R > maxGrayValue) maxGrayValue = pixelColor.R;
+                    if (pixelColor.R < minGrayValue) minGrayValue = pixelColor.R;
+                }
+            }
+            //迭代计算阀值
+            int threshold = -1;
+            int newThreshold = (minGrayValue + maxGrayValue) / 2;
+            for (int iterationTimes = 0; threshold != newThreshold && iterationTimes < 100; iterationTimes++)
+            {
+                threshold = newThreshold;
+                int lP1 = 0;
+                int lP2 = 0;
+                int lS1 = 0;
+                int lS2 = 0;
+                //求两个区域的灰度的平均值
+                for (int i = minGrayValue; i < threshold; i++)
+                {
+                    lP1 += histogram[i] * i;
+                    lS1 += histogram[i];
+                }
+                int mean1GrayValue = (lP1 / lS1);
+                for (int i = threshold + 1; i < maxGrayValue; i++)
+                {
+                    lP2 += histogram[i] * i;
+                    lS2 += histogram[i];
+                }
+                int mean2GrayValue = (lP2 / lS2);
+                newThreshold = (mean1GrayValue + mean2GrayValue) / 2;
+            }
+            //计算二值化
+            for (int i = 0; i < img1.Width; i++)
+            {
+                for (int j = 0; j < img1.Height; j++)
+                {
+                    Color pixelColor = img1.GetPixel(i, j);
+                    if (pixelColor.R > threshold) img1.SetPixel(i, j, Color.FromArgb(255, 255, 255));
+                    else img1.SetPixel(i, j, Color.FromArgb(0, 0, 0));
+                }
+            }
         }
 
 
@@ -1381,13 +1571,37 @@ namespace paipai
 
         }
 
+        public void CheckShowSetValue(string str)
+        {
+            if (check_show.InvokeRequired)
+            {
+                Action<string> actionDelegate = delegate(string txt) { this.check_show.AppendText(txt); };
+                this.check_show.Invoke(actionDelegate, str);
+            }
+            else
+            {
+                check_show.AppendText(str);
+
+            }
+
+
+
+        }
+
         public void EveryTimeRun(object source, ElapsedEventArgs e)
         {
 
+            int nowprice = 0;
+            int[] nowpricepoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.PriceEnd);
+            nowprice = GetNumber(nowpricepoint[0], nowpricepoint[1], nowpricepoint[2], nowpricepoint[3], @"d:\" + Guid.NewGuid() + ".jpg");
+            //nowprice = GetNumberGoogle(nowpricepoint[0], nowpricepoint[1], nowpricepoint[2], nowpricepoint[3]);
+            CheckShowSetValue("当前最高区间可提交价格为" + nowprice + ",与你的出价相差" + (myprice - nowprice) + "\r\n");
+            MessageBox.Show(nowprice.ToString());
             try
             {
-
-                if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4)
+                //20160727注释
+                //if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4)
+                if (myprice - nowprice <= 100 && canconfirm && keycount >= 4)
                 {
 
                     int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
@@ -1400,6 +1614,18 @@ namespace paipai
 
 
                 }
+                else if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4 && myprice - nowprice > 2000)
+                {
+
+                    int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+
+                    SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+                    mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+                    canconfirm = false;
+                    firstflag = false;
+                }
+
 
 
 
@@ -1453,7 +1679,7 @@ namespace paipai
 
 
 
-      
+
 
         [DllImport("kernel32.dll")]
         private static extern bool SetLocalTime(ref SYSTEMTIME time);
@@ -1470,9 +1696,62 @@ namespace paipai
             public short milliseconds;
         }
 
+        private void button5_Click(object sender, EventArgs e)
+        {
+            int x = 0;
+            int.TryParse(check_x.Text, out x);
+            int y = 0;
+            int.TryParse(check_y.Text, out y);
+            int width = 0;
+            int.TryParse(check_width.Text, out width);
+            int height = 0;
+            int.TryParse(check_height.Text, out height);
 
-   
-      
+            Bitmap temppic = captureScreen(x, y, width, height, 2);
+            pictureBox1.Image = temppic;
+
+
+
+
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+
+            int typeid = 0;
+            if (check_selecttype.SelectedIndex == 0)
+            {
+                typeid = 6;
+            }
+            else
+            {
+
+                typeid = 8;
+            }
+
+            int x = 0;
+            int.TryParse(check_x.Text, out x);
+            int y = 0;
+            int.TryParse(check_y.Text, out y);
+            int width = 0;
+            int.TryParse(check_width.Text, out width);
+            int height = 0;
+            int.TryParse(check_height.Text, out height);
+
+            string sql = "update [PointVaule] set [PointX]=" + x + ",[PointY]=" + y + ",[Width]=" + width + ",[Height]=" + height + " where [TypeId]=" + typeid;
+            bool checkflag = DBHelper.ExcuteSQL(sql) > 0;
+            MessageBox.Show(checkflag ? "保存成功" : "保存失败");
+
+
+
+
+
+
+        }
+
+
+
+
 
 
     }
