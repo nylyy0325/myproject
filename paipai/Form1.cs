@@ -681,20 +681,33 @@ namespace paipai
         {
 
             Bitmap btm = captureScreen(x, y, width, height, 3);
-            Monitor.Enter(this);//因为是多线程，所以用到了Monitor。 
+            //Monitor.Enter(this);//因为是多线程，所以用到了Monitor。 
 
             string defaultList = "0123456789";
             using (var test = new Tesseract.TesseractEngine(TessractData, language))
             {
                 test.SetVariable("tessedit_char_whitelist", defaultList);
                 ToGrey(btm);
-                Thresholding(btm);
+                try
+                {
+                    Thresholding(btm);
+                }
+                catch
+                {
+                    return 0;
+                }
                 using (var tmpPage = test.Process(btm))
                 {
                     string resault = tmpPage.GetText();
-                    resault = resault.Replace("\n", "");
+                    resault = resault.Replace("\n", "").Replace(" ", "");
                     int resaultvalue = 0;
-                    int.TryParse(resault, out resaultvalue);
+                    bool changeint = int.TryParse(resault, out resaultvalue);
+                    if (!changeint)
+                    {
+                        string inserterror = "insert into [dbo].[ErrorInfo] values('" + resault + "',getdate());";
+                        DBHelper.ExcuteSQL(inserterror);
+                    }
+
                     return resaultvalue;
                 }
 
@@ -1596,7 +1609,7 @@ namespace paipai
             nowprice = GetNumber(nowpricepoint[0], nowpricepoint[1], nowpricepoint[2], nowpricepoint[3], @"d:\" + Guid.NewGuid() + ".jpg");
             //nowprice = GetNumberGoogle(nowpricepoint[0], nowpricepoint[1], nowpricepoint[2], nowpricepoint[3]);
             CheckShowSetValue("当前最高区间可提交价格为" + nowprice + ",与你的出价相差" + (myprice - nowprice) + "\r\n");
-            MessageBox.Show(nowprice.ToString());
+
             try
             {
                 //20160727注释
