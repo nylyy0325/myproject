@@ -629,6 +629,28 @@ namespace paipai
 
         }
 
+        public void CheckPriceStart()
+        {
+
+            Thread.Sleep(500);
+            int[] mypricepoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.MyPrice);
+            myprice = GetNumber(mypricepoint[0], mypricepoint[1], mypricepoint[2], mypricepoint[3], @"d:\" + Guid.NewGuid() + ".jpg");
+
+            
+            System.Timers.Timer t = new System.Timers.Timer();
+            t.Elapsed += new ElapsedEventHandler(EveryTimeRun);
+            t.Interval = 400;
+            t.Enabled = true;
+            t.Start();
+
+
+            canconfirm = true;
+        
+        
+        }
+
+
+
         public int GetNumberGoogle(int x, int y, int width, int height)
         {
             Bitmap btm = captureScreen(x, y, width, height, 3);
@@ -1028,10 +1050,13 @@ namespace paipai
             //Wrapper.uu_login("nylyy0325", "19850325nyl");
             //AutoNumber();
 
-            keybd_event((byte)Keys.LControlKey, 0, 0, 0);
-            keybd_event((byte)Keys.Enter, 0, 0, 0);
-            keybd_event((byte)Keys.Enter, 0, 0x2, 0);
-            keybd_event((byte)Keys.LControlKey, 0, 0x2, 0);
+            //keybd_event((byte)Keys.LControlKey, 0, 0, 0);
+            //keybd_event((byte)Keys.Enter, 0, 0, 0);
+            //keybd_event((byte)Keys.Enter, 0, 0x2, 0);
+            //keybd_event((byte)Keys.LControlKey, 0, 0x2, 0);
+
+
+            CheckPriceStart();
 
 
         }
