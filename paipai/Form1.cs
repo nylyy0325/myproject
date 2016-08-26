@@ -636,7 +636,7 @@ namespace paipai
             int[] mypricepoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.MyPrice);
             myprice = GetNumber(mypricepoint[0], mypricepoint[1], mypricepoint[2], mypricepoint[3], @"d:\" + Guid.NewGuid() + ".jpg");
 
-            
+
             System.Timers.Timer t = new System.Timers.Timer();
             t.Elapsed += new ElapsedEventHandler(EveryTimeRun);
             t.Interval = 400;
@@ -645,8 +645,8 @@ namespace paipai
 
 
             canconfirm = true;
-        
-        
+
+
         }
 
 
@@ -1646,7 +1646,7 @@ namespace paipai
 
                     SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
                     mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
-
+                    Thread.Sleep(500);
                     canconfirm = false;
                     firstflag = false;
 

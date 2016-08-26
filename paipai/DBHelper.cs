@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+
 using System.Text;
 using System.Xml;
 
@@ -131,6 +132,7 @@ namespace paipai
         public static int ExcuteSQL(string strSQL, SqlParameter[] paras, CommandType cmdType)
         {
             int i = 0;
+            
             using (SqlConnection conn = new SqlConnection(strConn))
             {
                 SqlCommand cmd = new SqlCommand(strSQL, conn);
