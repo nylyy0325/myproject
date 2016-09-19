@@ -269,9 +269,7 @@ namespace paipai
             //timer.Start();
 
 
-            Thread truntd = new Thread(new ThreadStart(TimeRun));
-            truntd.IsBackground = true;
-            truntd.Start();
+          
 
             flaghandler += ChangeLable;
             flaghandler += KeyCountShow;
@@ -544,6 +542,11 @@ namespace paipai
             mh = new MouseHook();
             mh.SetHook();
             mh.MouseMoveEvent += mh_MouseMoveEvent;
+
+            Thread truntd = new Thread(new ThreadStart(TimeRun));
+            truntd.IsBackground = true;
+            truntd.Start();
+
             //mh.MouseDBClickEvent += mh_MouseDBClickEvent;
         }
 
