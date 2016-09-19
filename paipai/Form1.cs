@@ -51,7 +51,10 @@ namespace paipai
         int lastsecond = 0;
         int addmoney = 0;
         int pullsecond = 0;
-        DataTable dtcarplan;
+
+        DataTable dtcarplan1;
+        DataTable dtcarplan2;
+
         DataTable personinfodt;
         int monihour = 0;
         int monimin = 0;
@@ -64,6 +67,25 @@ namespace paipai
         bool pointflag = false;
         int pointcount = 1;
         Dictionary<int, string> pointlist;
+        System.Timers.Timer t = new System.Timers.Timer();
+        Thread whenanother;
+        Thread everytd;
+
+        int lastsecond2 = 0;
+        int addmoney2 = 0;
+        int pullsecond2 = 0;
+        int delaysecond = 0;
+        int delaysecond2 = 0;
+
+
+        int lastsecond1 = 0;
+        int addmoney1 = 0;
+        int pullsecond1 = 0;
+        int delaysecond1 = 0;
+
+        Dictionary<int, bool> planlist;
+
+
         public Form1()
         {
 
@@ -73,10 +95,19 @@ namespace paipai
             this.Location = new Point(1000, 0);
             InitializeComponent();
 
+            //DateTime sqltime = Convert.ToDateTime(DBHelper.GetObject("select getdate()"));
+            //TimeSpan ts = DateTime.Now - sqltime;
+            //label10.Text = ts.TotalMilliseconds.ToString();
+
+
             //handler += PriceInsert;
             handler += PriceConfirm;
             handler += SumbitConfirm;
 
+
+            planlist = new Dictionary<int, bool>();
+            planlist.Add(1, false);
+            planlist.Add(2, false);
 
             Thread trupdate = new Thread(new ThreadStart(CheckVersion));
             trupdate.IsBackground = true;
@@ -206,11 +237,23 @@ namespace paipai
             pointlist.Add(5, "提示框关闭按钮");
 
 
-            string sql = "select * from CarPlan";
-            dtcarplan = DBHelper.GetTable(sql);
+            string sql = @"select [id]
+      ,[planname] oldplanname
+      ,[lastsecond]
+      ,[addmoney]
+      ,[pullsecond]
+      ,[delaysecond],convert(varchar,planname) + ',延迟'+ convert(varchar,delaysecond) + '毫秒提交' planname from CarPlan";
+            dtcarplan1 = DBHelper.GetTable(sql);
+            dtcarplan2 = DBHelper.GetTable(sql);
             comboBox1.DisplayMember = "planname";
             comboBox1.ValueMember = "id";
-            comboBox1.DataSource = dtcarplan;
+            comboBox1.DataSource = dtcarplan1;
+            comboBox2.DisplayMember = "planname";
+            comboBox2.ValueMember = "id";
+            comboBox2.DataSource = dtcarplan2;
+
+
+
 
             InitPersonInfo();
 
@@ -218,12 +261,18 @@ namespace paipai
             string[] macurl = GetMacString();//获取mac地址;
 
 
-            System.Timers.Timer timer = new System.Timers.Timer();
+            //System.Timers.Timer timer = new System.Timers.Timer();
 
-            timer.Enabled = true;
-            timer.Interval = 100;//执行间隔时间,单位为毫秒
-            timer.Elapsed += new ElapsedEventHandler(TimeCheck);
-            timer.Start();
+            //timer.Enabled = true;
+            //timer.Interval = 100;//执行间隔时间,单位为毫秒
+            //timer.Elapsed += new ElapsedEventHandler(TimeCheck);
+            //timer.Start();
+
+
+            Thread truntd = new Thread(new ThreadStart(TimeRun));
+            truntd.IsBackground = true;
+            truntd.Start();
+
             flaghandler += ChangeLable;
             flaghandler += KeyCountShow;
             //tabControl1.TabPages.RemoveAt(1);
@@ -251,20 +300,55 @@ namespace paipai
             keycount_label.Text = keycount.ToString();
         }
 
+        public void TimeRun()
+        {
+            this.BeginInvoke(flaghandler);
+
+            while (true)
+            {
+                Thread.Sleep(200);
+                whichplan();
+                Thread.Sleep(200);
+                if (flag48)
+                {
+
+                    if (DateTime.Now.Hour == 11 && DateTime.Now.Minute == 29 && DateTime.Now.Second == lastsecond)
+                    {
+
+                        flag48 = false;
+                        FirstPullPrice();
+                        //keybd_event((byte)Keys.F3, 0, 0, 0);
+                        //keybd_event((byte)Keys.F3, 0, 0x2, 0);
+
+                    }
+
+                    if (DateTime.Now.Hour == monihour && DateTime.Now.Minute == monimin && DateTime.Now.Second == lastsecond && checkBox1.Checked)
+                    {
+                        flag48 = false;
+                        FirstPullPrice();
+                        //keybd_event((byte)Keys.F3, 0, 0, 0);
+                        //keybd_event((byte)Keys.F3, 0, 0x2, 0);
+
+
+
+                    }
+
+
+                }
+            }
+
+        }
+
         public void TimeCheck(object source, ElapsedEventArgs e)
         {
 
-            //if (DateTime.Now.Second % 20 == 0 && flag48)
-            //{
 
-            //    flag48 = false;
-            //    keybd_event((byte)Keys.F3, 0, 0, 0);
-            //    keybd_event((byte)Keys.F3, 0, 0x2, 0);
-
-
-            //}
-            // label4.Text = flag48 ? "开启" : "关闭";
             this.BeginInvoke(flaghandler);
+
+
+
+            whichplan();
+
 
             if (flag48)
             {
@@ -603,16 +687,12 @@ namespace paipai
 
             else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Enter)
             {
-                //string url = System.Windows.Forms.Application.StartupPath + @"\CheckPrice.exe";//@"D:\拍牌价格监测\CheckPrice\CheckPrice\bin\x86\Debug\CheckPrice.exe";//System.Windows.Forms.Application.StartupPath.Replace(@"paipai\paipai", @"paipai\\CheckPrice") + @"\CheckPrice.exe";
-
-                //Process.Start(url, myprice.ToString() + " " + pullsecond);
-
 
                 Thread.Sleep(500);
                 int[] mypricepoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.MyPrice);
                 myprice = GetNumber(mypricepoint[0], mypricepoint[1], mypricepoint[2], mypricepoint[3], @"d:\" + Guid.NewGuid() + ".jpg");
 
-                //myprice = GetNumberGoogle(mypricepoint[0], mypricepoint[1], mypricepoint[2], mypricepoint[3]);
+
                 System.Timers.Timer t = new System.Timers.Timer();
                 t.Elapsed += new ElapsedEventHandler(EveryTimeRun);
                 t.Interval = 400;
@@ -620,9 +700,7 @@ namespace paipai
                 t.Start();
 
 
-                //System.Threading.Thread tnumber = new System.Threading.Thread(new System.Threading.ThreadStart(AutoNumber));
-                //tnumber.IsBackground = true;
-                //tnumber.Start();
+
                 canconfirm = true;
 
             }
@@ -632,17 +710,18 @@ namespace paipai
         public void CheckPriceStart()
         {
 
-            Thread.Sleep(500);
+            //Thread.Sleep(500);
+
             int[] mypricepoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.MyPrice);
             myprice = GetNumber(mypricepoint[0], mypricepoint[1], mypricepoint[2], mypricepoint[3], @"d:\" + Guid.NewGuid() + ".jpg");
+            //t.Elapsed += new ElapsedEventHandler(EveryTimeRun);
+            //t.Interval = 400;
+            //t.Enabled = true;
+            //t.Start();
 
-
-            System.Timers.Timer t = new System.Timers.Timer();
-            t.Elapsed += new ElapsedEventHandler(EveryTimeRun);
-            t.Interval = 400;
-            t.Enabled = true;
-            t.Start();
-
+            everytd = new Thread(new ThreadStart(EveryTimeRunTD));
+            everytd.IsBackground = true;
+            everytd.Start();
 
             canconfirm = true;
 
@@ -716,6 +795,8 @@ namespace paipai
                 }
                 catch
                 {
+                    string inserterror = "insert into [dbo].[ErrorInfo] values('btmerror',getdate());";
+                    DBHelper.ExcuteSQL(inserterror);
                     return 0;
                 }
                 using (var tmpPage = test.Process(btm))
@@ -726,6 +807,7 @@ namespace paipai
                     bool changeint = int.TryParse(resault, out resaultvalue);
                     if (!changeint)
                     {
+                        btm.Save(@"d:\" + Guid.NewGuid() + ".jpg");
                         string inserterror = "insert into [dbo].[ErrorInfo] values('" + resault + "',getdate());";
                         DBHelper.ExcuteSQL(inserterror);
                     }
@@ -844,26 +926,108 @@ namespace paipai
             }
         }
 
-
-
-        public void FirstPullPrice(bool f3flag = false)
+        public void whichplan()
         {
-            if (f3flag)
+            int plancount = 0;
+
+            foreach (int i in planlist.Keys)
             {
-                int[] messageboxshowpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.MessageBoxShow);
-                SetCursorPos(messageboxshowpoint[0], messageboxshowpoint[1]);
-                mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                if (planlist[i])
+                {
+                    plancount++;
 
+                }
 
+            }
 
+            if (plancount == 0)
+            {
+                lastsecond = lastsecond1;
+                pullsecond = pullsecond1;
+                addmoney = addmoney1;
+                delaysecond = delaysecond1;
+            }
+            else if (plancount == 1)
+            {
+                lastsecond = lastsecond2;
+                pullsecond = pullsecond2;
+                addmoney = addmoney2;
+                delaysecond = delaysecond2;
+
+            }
+            else
+            {
                 int nowlistkey = DateTime.Now.Second < 50 ? 50 : DateTime.Now.Second;
                 addmoney = lastsecondlist[nowlistkey];
-
-
+                lastsecond = lastsecond1;
+                pullsecond = pullsecond1;
+                delaysecond = 0;
 
             }
 
 
+        }
+
+        public void FirstPullPrice(bool f3flag = false)
+        {
+
+            int[] messageboxshowpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.MessageBoxShow);
+            SetCursorPos(messageboxshowpoint[0], messageboxshowpoint[1]);
+            mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+            if (f3flag)
+            {
+
+
+                int nowlistkey = DateTime.Now.Second < 50 ? 50 : DateTime.Now.Second;
+                addmoney = lastsecondlist[nowlistkey];
+                lastsecond = lastsecond1;
+                pullsecond = pullsecond1;
+                delaysecond = delaysecond1;
+
+
+            }
+            else
+            {
+                //int plancount = 0;
+                //foreach (int i in planlist.Keys)
+                //{
+                //    if (planlist[i])
+                //    {
+                //        plancount++;
+
+                //    }
+
+                //}
+                //if (plancount == 0)
+                //{
+                //    lastsecond = lastsecond1;
+                //    pullsecond = pullsecond1;
+                //    addmoney = addmoney1;
+                //    delaysecond = delaysecond1;
+                //}
+                //else if (plancount == 1)
+                //{
+                //    lastsecond = lastsecond2;
+                //    pullsecond = pullsecond2;
+                //    addmoney = addmoney2;
+                //    delaysecond = delaysecond2;
+
+                //}
+                //else
+                //{
+                //    int nowlistkey = DateTime.Now.Second < 50 ? 50 : DateTime.Now.Second;
+                //    addmoney = lastsecondlist[nowlistkey];
+                //    lastsecond = lastsecond1;
+                //    pullsecond = pullsecond1;
+                //    delaysecond = 0;
+
+                //}
+
+                //whichplan();
+
+
+            }
 
 
             #region 自定义加价输入框选中
@@ -1220,11 +1384,12 @@ namespace paipai
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            DataTable dtcopy = dtcarplan.Copy();
+            DataTable dtcopy = dtcarplan1.Copy();
             dtcopy.DefaultView.RowFilter = "id = " + comboBox1.SelectedValue;
-            lastsecond = Convert.ToInt32(dtcopy.DefaultView[0]["lastsecond"]);
-            addmoney = Convert.ToInt32(dtcopy.DefaultView[0]["addmoney"]);
-            pullsecond = Convert.ToInt32(dtcopy.DefaultView[0]["pullsecond"]);
+            lastsecond1 = Convert.ToInt32(dtcopy.DefaultView[0]["lastsecond"]);
+            addmoney1 = Convert.ToInt32(dtcopy.DefaultView[0]["addmoney"]);
+            pullsecond1 = Convert.ToInt32(dtcopy.DefaultView[0]["pullsecond"]);
+            delaysecond1 = Convert.ToInt32(dtcopy.DefaultView[0]["delaysecond"]);
         }
 
         private void button1_Click_1(object sender, EventArgs e)
@@ -1626,6 +1791,93 @@ namespace paipai
 
         }
 
+        public void EveryTimeRunTD()
+        {
+
+            while (true)
+            {
+                int nowprice = 0;
+                int[] nowpricepoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.PriceEnd);
+                nowprice = GetNumber(nowpricepoint[0], nowpricepoint[1], nowpricepoint[2], nowpricepoint[3], @"d:\" + Guid.NewGuid() + ".jpg");
+                //nowprice = GetNumberGoogle(nowpricepoint[0], nowpricepoint[1], nowpricepoint[2], nowpricepoint[3]);
+                CheckShowSetValue("当前最高区间可提交价格为" + nowprice + ",与你的出价相差" + (myprice - nowprice) + "\r\n");
+
+                try
+                {
+                    //20160727注释
+                    //if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4)
+                    if (myprice - nowprice <= 100 && canconfirm && keycount >= 4)
+                    {
+
+                        int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+
+                        SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+                        mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                        if (delaysecond > 0)
+                        {
+                            Thread.Sleep(delaysecond);
+                        }
+                        
+                        //Thread.Sleep(500);
+                        canconfirm = false;
+                        firstflag = false;
+
+                        whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                        whenanother.IsBackground = true;
+                        whenanother.Start();
+                        //t.Stop();
+                        everytd.Abort();
+
+
+                    }
+                    else if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4 && myprice - nowprice > 2000)
+                    {
+
+                        int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+
+                        SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+                        mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+                        canconfirm = false;
+                        firstflag = false;
+                        whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                        whenanother.IsBackground = true;
+                        whenanother.Start();
+                        everytd.Abort();
+                        //t.Stop();
+
+                    }
+                    else if (DateTime.Now.Second >= 55 && canconfirm && keycount >= 4)
+                    {
+
+                        int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+
+                        SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+                        mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                        //Thread.Sleep(500);
+                        canconfirm = false;
+                        firstflag = false;
+                        whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                        whenanother.IsBackground = true;
+                        whenanother.Start();
+                        everytd.Abort();
+                        //t.Stop();
+
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //DBHelper.ExcuteSQL("insert into ErrorInfo([errormessage]) values('" + resultstring + "和" + ex.Message + "')");
+                    //WriteError(ex.Message);
+                    //Environment.Exit(0);
+
+                }
+            }
+
+        }
+
+
         public void EveryTimeRun(object source, ElapsedEventArgs e)
         {
 
@@ -1650,6 +1902,12 @@ namespace paipai
                     canconfirm = false;
                     firstflag = false;
 
+                    whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                    whenanother.IsBackground = true;
+                    whenanother.Start();
+                    t.Stop();
+
+
 
                 }
                 else if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4 && myprice - nowprice > 2000)
@@ -1662,7 +1920,34 @@ namespace paipai
 
                     canconfirm = false;
                     firstflag = false;
+                    whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                    whenanother.IsBackground = true;
+                    whenanother.Start();
+                    t.Stop();
+
                 }
+                else if (DateTime.Now.Second >= 55 && canconfirm && keycount >= 4)
+                {
+
+                    int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+
+                    SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+                    mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                    Thread.Sleep(500);
+                    canconfirm = false;
+                    firstflag = false;
+                    whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                    whenanother.IsBackground = true;
+                    whenanother.Start();
+                    t.Stop();
+
+                }
+
+
+
+
+
+
 
 
 
@@ -1685,11 +1970,22 @@ namespace paipai
         {
 
 
-            string sql = "select * from CarPlan";
-            dtcarplan = DBHelper.GetTable(sql);
+            string sql = @"select [id]
+      ,[planname] oldplanname
+      ,[lastsecond]
+      ,[addmoney]
+      ,[pullsecond]
+      ,[delaysecond],convert(varchar,planname) + ',延迟'+ convert(varchar,delaysecond) + '毫秒提交' planname from CarPlan";
+            dtcarplan1 = DBHelper.GetTable(sql);
+            dtcarplan2 = DBHelper.GetTable(sql);
             comboBox1.DisplayMember = "planname";
             comboBox1.ValueMember = "id";
-            comboBox1.DataSource = dtcarplan;
+            comboBox1.DataSource = dtcarplan1;
+            comboBox2.DisplayMember = "planname";
+            comboBox2.ValueMember = "id";
+            comboBox2.DataSource = dtcarplan2;
+
+
         }
 
         private void tabPage1_Click(object sender, EventArgs e)
@@ -1785,6 +2081,92 @@ namespace paipai
 
 
 
+        }
+
+
+        public void WhenEnterButton()
+        {
+
+            //705; 518;
+            int[] messageboxshowpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.MessageBoxShow);
+            int x = messageboxshowpoint[0];
+            int y = messageboxshowpoint[1];
+            while (true)
+            {
+                Bitmap temp = captureScreen(x, y, 4, 4, 4);
+
+                try
+                {
+                    Thresholding(temp);
+                    //DBHelper.ExcuteSQL("insert into ErrorInfo(errormessage) values ('true')");
+                }
+                catch
+                {
+                    //DBHelper.ExcuteSQL("insert into ErrorInfo(errormessage) values ('false')");
+                    continue;
+
+                }
+                Color a = temp.GetPixel(1, 1);
+                if (a.ToArgb() < 0)
+                {
+                    #region 时间判断是否触发第二策略
+                    if (DateTime.Now.Second >= lastsecond2)
+                    {
+
+                        FirstPullPrice(true);
+                    }
+                    else
+                    {
+                        flag48 = true;
+                    }
+
+                    #endregion
+                    break;
+
+                }
+            }
+            foreach (int i in planlist.Keys)
+            {
+                if (!planlist[i])
+                {
+                    planlist[i] = true;
+                    break;
+                }
+            }
+            whenanother.Abort();
+        }
+
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            int x = 705; int y = 518;
+
+            Bitmap temp = captureScreen(x, y, 4, 4, 4);
+
+
+            //ToGrey(temp);
+
+            Thresholding(temp);
+            pictureBox1.Image = temp;
+
+
+
+
+            Color a = temp.GetPixel(1, 1);
+
+
+            MessageBox.Show(a.ToArgb().ToString());
+
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            DataTable dtcopy = dtcarplan2.Copy();
+            dtcopy.DefaultView.RowFilter = "id = " + comboBox2.SelectedValue;
+            lastsecond2 = Convert.ToInt32(dtcopy.DefaultView[0]["lastsecond"]);
+            addmoney2 = Convert.ToInt32(dtcopy.DefaultView[0]["addmoney"]);
+            pullsecond2 = Convert.ToInt32(dtcopy.DefaultView[0]["pullsecond"]);
+            delaysecond2 = Convert.ToInt32(dtcopy.DefaultView[0]["delaysecond"]);
         }
 
 
