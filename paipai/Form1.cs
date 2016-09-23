@@ -973,7 +973,7 @@ namespace paipai
 
         public void FirstPullPrice(bool f3flag = false)
         {
-
+            Thread.Sleep(200);
             int[] messageboxshowpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.MessageBoxShow);
             SetCursorPos(messageboxshowpoint[0], messageboxshowpoint[1]);
             mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
@@ -1044,7 +1044,7 @@ namespace paipai
             keybd_event((byte)Keys.A, 0, 0x2, 0);
             keybd_event((byte)Keys.LControlKey, 0, 0x2, 0);
             keybd_event((byte)Keys.Delete, 0, 0, 0);
-
+            Thread.Sleep(200);
             foreach (char onekey in addmoney.ToString())
             {
                 keybd_event((byte)keylist[onekey], 0, 0, 0);
@@ -1815,11 +1815,12 @@ namespace paipai
                         int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
 
                         SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
-                        mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
                         if (delaysecond > 0)
                         {
                             Thread.Sleep(delaysecond);
                         }
+                        mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
                         
                         //Thread.Sleep(500);
                         canconfirm = false;
@@ -1856,8 +1857,10 @@ namespace paipai
                         int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
 
                         SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+                        Thread.Sleep(500);
                         mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
-                        //Thread.Sleep(500);
+
+                        
                         canconfirm = false;
                         firstflag = false;
                         whenanother = new Thread(new ThreadStart(WhenEnterButton));
@@ -1900,8 +1903,9 @@ namespace paipai
                     int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
 
                     SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
-                    mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
                     Thread.Sleep(500);
+                    mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                    
                     canconfirm = false;
                     firstflag = false;
 
@@ -1935,8 +1939,9 @@ namespace paipai
                     int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
 
                     SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
-                    mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
                     Thread.Sleep(500);
+                    mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                    
                     canconfirm = false;
                     firstflag = false;
                     whenanother = new Thread(new ThreadStart(WhenEnterButton));
