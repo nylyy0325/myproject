@@ -216,7 +216,7 @@ namespace paipai
             keylist.Add('W', Keys.W);
             keylist.Add('Y', Keys.Y);
             keylist.Add('Z', Keys.Z);
-            for (int i = 1; i < 24; i++)
+            for (int i = 0; i < 24; i++)
             {
                 moni_hour.Items.Add(i);
 
@@ -269,7 +269,7 @@ namespace paipai
             //timer.Start();
 
 
-          
+
 
             flaghandler += ChangeLable;
             flaghandler += KeyCountShow;
@@ -1809,9 +1809,9 @@ namespace paipai
                 {
                     //20160727注释
                     //if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4)
-                    if (myprice - nowprice <= 100 && canconfirm && keycount >= 4)
-                    {
 
+                    if (addmoney == 500 && myprice - nowprice <= 0 && canconfirm && keycount >= 4)
+                    {
                         int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
 
                         SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
@@ -1821,7 +1821,7 @@ namespace paipai
                         }
                         mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
 
-                        
+
                         //Thread.Sleep(500);
                         canconfirm = false;
                         firstflag = false;
@@ -1832,43 +1832,79 @@ namespace paipai
                         //t.Stop();
                         everytd.Abort();
 
-
                     }
-                    else if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4 && myprice - nowprice > 2000)
+
+                    else
                     {
+                        if (addmoney > 500 && myprice - nowprice <= 100 && canconfirm && keycount >= 4)
+                        {
 
-                        int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+                            int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
 
-                        SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
-                        mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                            SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+                            if (delaysecond > 0)
+                            {
+                                Thread.Sleep(delaysecond);
+                            }
+                            mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
 
-                        canconfirm = false;
-                        firstflag = false;
-                        whenanother = new Thread(new ThreadStart(WhenEnterButton));
-                        whenanother.IsBackground = true;
-                        whenanother.Start();
-                        everytd.Abort();
-                        //t.Stop();
 
-                    }
-                    else if (DateTime.Now.Second >= 55 && canconfirm && keycount >= 4)
-                    {
+                            //Thread.Sleep(500);
+                            canconfirm = false;
+                            firstflag = false;
 
-                        int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+                            whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                            whenanother.IsBackground = true;
+                            whenanother.Start();
+                            //t.Stop();
+                            everytd.Abort();
 
-                        SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
-                        Thread.Sleep(500);
-                        mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
 
-                        
-                        canconfirm = false;
-                        firstflag = false;
-                        whenanother = new Thread(new ThreadStart(WhenEnterButton));
-                        whenanother.IsBackground = true;
-                        whenanother.Start();
-                        everytd.Abort();
-                        //t.Stop();
+                        }
+                        else if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4 && myprice - nowprice > 2000)
+                        {
 
+                            int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+
+                            SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+                            mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+                            canconfirm = false;
+                            firstflag = false;
+                            whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                            whenanother.IsBackground = true;
+                            whenanother.Start();
+                            everytd.Abort();
+                            //t.Stop();
+
+                        }
+                        else if (DateTime.Now.Second >= 56 && canconfirm && keycount >= 4)
+                        {
+
+                            int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+
+                            SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+
+                            if (addmoney > 700)
+                            {
+
+                                Thread.Sleep(1000);
+
+
+                            }
+
+                            mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+
+                            canconfirm = false;
+                            firstflag = false;
+                            whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                            whenanother.IsBackground = true;
+                            whenanother.Start();
+                            everytd.Abort();
+                            //t.Stop();
+
+                        }
                     }
 
                 }
@@ -1905,7 +1941,7 @@ namespace paipai
                     SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
                     Thread.Sleep(500);
                     mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
-                    
+
                     canconfirm = false;
                     firstflag = false;
 
@@ -1941,7 +1977,7 @@ namespace paipai
                     SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
                     Thread.Sleep(500);
                     mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
-                    
+
                     canconfirm = false;
                     firstflag = false;
                     whenanother = new Thread(new ThreadStart(WhenEnterButton));
