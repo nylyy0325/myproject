@@ -281,6 +281,9 @@ namespace paipai
             //Wrapper.uu_setSoftInfo(108048, "fdaeff5504864589bea7a929334fb69f");
             //Wrapper.uu_login("nylyy0325", "19850325nyl");
 
+
+            
+
         }
 
 
@@ -297,6 +300,13 @@ namespace paipai
 
             keycount_label.Text = keycount.ToString();
         }
+
+
+
+
+
+
+
 
         public void TimeRun()
         {
@@ -2059,21 +2069,7 @@ namespace paipai
 
 
 
-        [DllImport("kernel32.dll")]
-        private static extern bool SetLocalTime(ref SYSTEMTIME time);
-        [StructLayout(LayoutKind.Sequential)]
-        private struct SYSTEMTIME
-        {
-            public short year;
-            public short month;
-            public short dayOfWeek;
-            public short day;
-            public short hour;
-            public short minute;
-            public short second;
-            public short milliseconds;
-        }
-
+   
         private void button5_Click(object sender, EventArgs e)
         {
             int x = 0;
