@@ -142,8 +142,8 @@ namespace paipai
 
             lastsecondlist = new Dictionary<int, int>();
             lastsecondlist.Add(50, 700);
-            lastsecondlist.Add(51, 700);
-            lastsecondlist.Add(52, 700);
+            lastsecondlist.Add(51, 600);
+            lastsecondlist.Add(52, 500);
             lastsecondlist.Add(53, 700);
             lastsecondlist.Add(54, 600);
             lastsecondlist.Add(55, 500);
@@ -1895,13 +1895,13 @@ namespace paipai
 
                             SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
 
-                            if (addmoney > 700)
-                            {
+                            //if (addmoney > 700)
+                            //{
 
-                                Thread.Sleep(1000);
+                            //    Thread.Sleep(1000);
 
 
-                            }
+                            //}
 
                             mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
 
