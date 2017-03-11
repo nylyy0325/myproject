@@ -387,7 +387,7 @@ namespace paipai
 
 
 
-        }
+        }  
 
 
 
@@ -455,7 +455,7 @@ namespace paipai
                         GetPoint();
                         PointType.PointType.UpdatePointDatatable();
                         //MessageBox.Show("坐标更新成功");
-                        label10.Text = "坐标更新成功";
+                        //label10.Text = "坐标更新成功";
 
                     }
 
@@ -1902,6 +1902,12 @@ namespace paipai
 
 
                             //}
+
+                            if (delaysecond > 0)
+                            {
+                                Thread.Sleep(delaysecond);
+                            }
+
 
                             mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
 
