@@ -76,6 +76,9 @@ namespace paipai
         int pullsecond2 = 0;
         int delaysecond = 0;
         int delaysecond2 = 0;
+        int isearlysumbit = 0;
+        int isearlysumbit1 = 0;
+        int isearlysumbit2 = 0;
 
 
         int lastsecond1 = 0;
@@ -242,7 +245,8 @@ namespace paipai
       ,[lastsecond]
       ,[addmoney]
       ,[pullsecond]
-      ,[delaysecond],convert(varchar,planname) + ',延迟'+ convert(varchar,delaysecond) + '毫秒提交' planname from CarPlan";
+      ,[isearlysumbit]
+      ,[delaysecond],convert(varchar,planname) + ',延迟'+ convert(varchar,delaysecond) + '毫秒提交,提前'+convert(varchar,isearlysumbit) planname from CarPlan";
             dtcarplan1 = DBHelper.GetTable(sql);
             dtcarplan2 = DBHelper.GetTable(sql);
             comboBox1.DisplayMember = "planname";
@@ -282,7 +286,7 @@ namespace paipai
             //Wrapper.uu_login("nylyy0325", "19850325nyl");
 
 
-            
+
 
         }
 
@@ -387,7 +391,7 @@ namespace paipai
 
 
 
-        }  
+        }
 
 
 
@@ -959,6 +963,7 @@ namespace paipai
                 pullsecond = pullsecond1;
                 addmoney = addmoney1;
                 delaysecond = delaysecond1;
+                isearlysumbit = isearlysumbit1;
             }
             else if (plancount == 1)
             {
@@ -966,6 +971,7 @@ namespace paipai
                 pullsecond = pullsecond2;
                 addmoney = addmoney2;
                 delaysecond = delaysecond2;
+                isearlysumbit = isearlysumbit2;
 
             }
             else
@@ -975,6 +981,7 @@ namespace paipai
                 lastsecond = lastsecond1;
                 pullsecond = pullsecond1;
                 delaysecond = 0;
+                isearlysumbit = 0;
 
             }
 
@@ -1403,6 +1410,7 @@ namespace paipai
             addmoney1 = Convert.ToInt32(dtcopy.DefaultView[0]["addmoney"]);
             pullsecond1 = Convert.ToInt32(dtcopy.DefaultView[0]["pullsecond"]);
             delaysecond1 = Convert.ToInt32(dtcopy.DefaultView[0]["delaysecond"]);
+            isearlysumbit1 = Convert.ToInt32(dtcopy.DefaultView[0]["isearlysumbit"]);
         }
 
         private void button1_Click_1(object sender, EventArgs e)
@@ -1820,8 +1828,35 @@ namespace paipai
                     //20160727注释
                     //if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4)
 
-                    if (addmoney == 500 && myprice - nowprice <= 0 && canconfirm && keycount >= 4)
+                    //if (addmoney == 500 && myprice - nowprice <= 0 && canconfirm && keycount >= 4)
+                    //{
+                    //    int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+
+                    //    SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+                    //    if (delaysecond > 0)
+                    //    {
+                    //        Thread.Sleep(delaysecond);
+                    //    }
+                    //    mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+
+                    //    //Thread.Sleep(500);
+                    //    canconfirm = false;
+                    //    firstflag = false;
+
+                    //    whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                    //    whenanother.IsBackground = true;
+                    //    whenanother.Start();
+                    //    //t.Stop();
+                    //    everytd.Abort();
+
+                    //}
+
+                    //else
+                    //{
+                    if (myprice - nowprice <= isearlysumbit && canconfirm && keycount >= 4)
                     {
+
                         int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
 
                         SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
@@ -1842,86 +1877,59 @@ namespace paipai
                         //t.Stop();
                         everytd.Abort();
 
-                    }
 
-                    else
+                    }
+                    else if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4 && myprice - nowprice > 2000)
                     {
-                        if (addmoney > 500 && myprice - nowprice <= 100 && canconfirm && keycount >= 4)
-                        {
 
-                            int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+                        int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
 
-                            SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
-                            if (delaysecond > 0)
-                            {
-                                Thread.Sleep(delaysecond);
-                            }
-                            mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+                        SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+                        mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
 
+                        canconfirm = false;
+                        firstflag = false;
+                        whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                        whenanother.IsBackground = true;
+                        whenanother.Start();
+                        everytd.Abort();
+                        //t.Stop();
 
-                            //Thread.Sleep(500);
-                            canconfirm = false;
-                            firstflag = false;
-
-                            whenanother = new Thread(new ThreadStart(WhenEnterButton));
-                            whenanother.IsBackground = true;
-                            whenanother.Start();
-                            //t.Stop();
-                            everytd.Abort();
-
-
-                        }
-                        else if (DateTime.Now.Second >= pullsecond && canconfirm && keycount >= 4 && myprice - nowprice > 2000)
-                        {
-
-                            int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
-
-                            SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
-                            mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
-
-                            canconfirm = false;
-                            firstflag = false;
-                            whenanother = new Thread(new ThreadStart(WhenEnterButton));
-                            whenanother.IsBackground = true;
-                            whenanother.Start();
-                            everytd.Abort();
-                            //t.Stop();
-
-                        }
-                        else if (DateTime.Now.Second >= 56 && canconfirm && keycount >= 4)
-                        {
-
-                            int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
-
-                            SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
-
-                            //if (addmoney > 700)
-                            //{
-
-                            //    Thread.Sleep(1000);
-
-
-                            //}
-
-                            if (delaysecond > 0)
-                            {
-                                Thread.Sleep(delaysecond);
-                            }
-
-
-                            mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
-
-
-                            canconfirm = false;
-                            firstflag = false;
-                            whenanother = new Thread(new ThreadStart(WhenEnterButton));
-                            whenanother.IsBackground = true;
-                            whenanother.Start();
-                            everytd.Abort();
-                            //t.Stop();
-
-                        }
                     }
+                    else if (DateTime.Now.Second >= 56 && canconfirm && keycount >= 4)
+                    {
+
+                        int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
+
+                        SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
+
+                        //if (addmoney > 700)
+                        //{
+
+                        //    Thread.Sleep(1000);
+
+
+                        //}
+
+                        if (delaysecond > 0)
+                        {
+                            Thread.Sleep(delaysecond);
+                        }
+
+
+                        mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
+
+
+                        canconfirm = false;
+                        firstflag = false;
+                        whenanother = new Thread(new ThreadStart(WhenEnterButton));
+                        whenanother.IsBackground = true;
+                        whenanother.Start();
+                        everytd.Abort();
+                        //t.Stop();
+
+                    }
+                    //}
 
                 }
                 catch (Exception ex)
@@ -2035,7 +2043,8 @@ namespace paipai
       ,[lastsecond]
       ,[addmoney]
       ,[pullsecond]
-      ,[delaysecond],convert(varchar,planname) + ',延迟'+ convert(varchar,delaysecond) + '毫秒提交' planname from CarPlan";
+      ,[isearlysumbit]
+      ,[delaysecond],convert(varchar,planname) + ',延迟'+ convert(varchar,delaysecond) + '毫秒提交，提前'+ convert(varchar,isearlysumbit) planname from CarPlan";
             dtcarplan1 = DBHelper.GetTable(sql);
             dtcarplan2 = DBHelper.GetTable(sql);
             comboBox1.DisplayMember = "planname";
@@ -2075,7 +2084,7 @@ namespace paipai
 
 
 
-   
+
         private void button5_Click(object sender, EventArgs e)
         {
             int x = 0;
@@ -2213,6 +2222,8 @@ namespace paipai
             addmoney2 = Convert.ToInt32(dtcopy.DefaultView[0]["addmoney"]);
             pullsecond2 = Convert.ToInt32(dtcopy.DefaultView[0]["pullsecond"]);
             delaysecond2 = Convert.ToInt32(dtcopy.DefaultView[0]["delaysecond"]);
+            isearlysumbit2 = Convert.ToInt32(dtcopy.DefaultView[0]["isearlysumbit"]);
+
         }
 
 
