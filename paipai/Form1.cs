@@ -1896,7 +1896,7 @@ namespace paipai
                         //t.Stop();
 
                     }
-                    else if (DateTime.Now.Second >= 56 && canconfirm && keycount >= 4)
+                    else if (DateTime.Now.Second >= 55 && canconfirm && keycount >= 4)
                     {
 
                         int[] finallpullpoint = PointType.PointType.GetPointValue(PointType.PointType.Coordinate.FinallyPullPrice);
