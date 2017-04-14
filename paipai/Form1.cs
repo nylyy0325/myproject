@@ -1862,7 +1862,7 @@ namespace paipai
                         SetCursorPos(finallpullpoint[0], finallpullpoint[1]);
                         if (delaysecond > 0)
                         {
-                            Thread.Sleep(delaysecond);
+                            Thread.Sleep(delaysecond / 2);
                         }
                         mouse_event(MouseEventFlag.LeftDown | MouseEventFlag.LeftUp, 0, 0, 0, UIntPtr.Zero);
 
@@ -2225,7 +2225,6 @@ namespace paipai
             isearlysumbit2 = Convert.ToInt32(dtcopy.DefaultView[0]["isearlysumbit"]);
 
         }
-
 
 
 
