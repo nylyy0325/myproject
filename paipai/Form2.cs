@@ -13,19 +13,16 @@ namespace paipai
     public partial class Form2 : Form
     {
 
-
+         
         public static bool getpoint = false;
         public Form2()
         {
             this.Location = new Point(0, 0);
             InitializeComponent();
-            //webBrowser1.Navigate("https://paimai2.alltobid.com/bid/2017031801/login.htm");
+            webBrowser1.Navigate("https://paimai2.alltobid.com/bid/2017041501/login.htm");
             //webBrowser1.Navigate("https://paimai2.alltobid.com/bid/2017011401/login.htm");
-            webBrowser1.Navigate("http://moni.51hupai.org/");
+            //webBrowser1.Navigate("http://moni.51hupai.org/");
             //webBrowser1.Navigate("http://test.alltobid.com/");
-
-          
-
 
         }
 
