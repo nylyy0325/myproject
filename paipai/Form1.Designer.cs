@@ -100,7 +100,7 @@
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(77, 24);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(250, 20);
+            this.comboBox1.Size = new System.Drawing.Size(292, 20);
             this.comboBox1.TabIndex = 0;
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
@@ -147,7 +147,7 @@
             this.comboBox2.FormattingEnabled = true;
             this.comboBox2.Location = new System.Drawing.Point(77, 63);
             this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(250, 20);
+            this.comboBox2.Size = new System.Drawing.Size(292, 20);
             this.comboBox2.TabIndex = 12;
             this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
             // 
@@ -179,7 +179,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(347, 41);
+            this.button4.Location = new System.Drawing.Point(375, 40);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(54, 23);
             this.button4.TabIndex = 8;
